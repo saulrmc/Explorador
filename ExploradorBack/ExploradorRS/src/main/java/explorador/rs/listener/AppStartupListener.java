@@ -1,0 +1,102 @@
+package explorador.rs.listener;
+
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.annotation.WebListener;
+import explorador.data.ExploradorConfig;
+import explorador.fuentes.bo.FuentesBO;
+import explorador.fuentes.bo.FuentesBOImpl;
+import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.notificaciones.bo.NotificadorBO;
+import explorador.notificaciones.bo.NotificadorBOImpl;
+import explorador.publicaciones.bo.PublicacionesBO;
+import explorador.publicaciones.bo.PublicacionesBOImpl;
+import explorador.publicaciones.modelo.Publicacion;
+import explorador.usuario.bo.AreaInteresBO;
+import explorador.usuario.bo.AreaInteresBOImpl;
+import explorador.usuario.bo.UsuarioBO;
+import explorador.usuario.bo.UsuarioBOImpl;
+import explorador.usuario.modelo.AreaInteres;
+import explorador.usuario.modelo.Usuario;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+@WebListener
+public class AppStartupListener implements ServletContextListener {
+
+    private ScheduledExecutorService planificador;
+
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        UsuarioBO usuarioBO = new UsuarioBOImpl();
+        AreaInteresBO areaBO = new AreaInteresBOImpl();
+        FuentesBO fuentesBO = new FuentesBOImpl();
+        PublicacionesBO publicacionesBO = new PublicacionesBOImpl();
+        NotificadorBO notificadorBO = new NotificadorBOImpl();
+
+        int minutos = Integer.parseInt(
+                ExploradorConfig.obtener("fuente.arxiv.intervalo_minutos", "1"));
+
+        planificador = Executors.newSingleThreadScheduledExecutor();
+        planificador.scheduleAtFixedRate(() -> ejecutarCiclo(usuarioBO, areaBO, fuentesBO, publicacionesBO, notificadorBO),
+                0, minutos, TimeUnit.MINUTES);
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        if (planificador != null) {
+            planificador.shutdownNow();
+        }
+    }
+
+    private void ejecutarCiclo(UsuarioBO usuarioBO, AreaInteresBO areaBO, FuentesBO fuentesBO,
+                               PublicacionesBO publicacionesBO, NotificadorBO notificadorBO) {
+        try {
+            List<AreaInteres> areas = areaBO.listar();
+            if (areas.isEmpty()) {
+                System.out.println("Sin areas de interes configuradas, se omite la consulta de fuentes.");
+                return;
+            }
+
+            Set<String> categorias = categoriasArxiv(areas);
+            Set<String> keywords = areas.stream()
+                    .map(AreaInteres::getNombre)
+                    .collect(Collectors.toSet());
+
+            List<PublicacionBruta> brutas = fuentesBO.procesar(categorias, keywords);
+            List<Publicacion> nuevas = publicacionesBO.registrarBrutas(brutas);
+            System.out.println("Ciclo de fuentes: " + nuevas.size() + " publicaciones nuevas.");
+
+            if (nuevas.isEmpty()) {
+                return;
+            }
+
+            List<Publicacion> mejores = publicacionesBO.rankear(nuevas, keywords);
+            int max = Integer.parseInt(ExploradorConfig.obtener("notificaciones.max_por_batch", "5"));
+            List<Publicacion> top = mejores.stream().limit(max).toList();
+
+            Usuario usuario = usuarioBO.obtener();
+            if (usuario != null && usuario.getCorreo() != null && !usuario.getCorreo().isBlank()) {
+                notificadorBO.notificarNuevas(top, usuario.getCorreo());
+            }
+        } catch (Exception e) {
+            System.err.println("Error en el ciclo de consulta de fuentes: " + e.getMessage());
+        }
+    }
+
+    private Set<String> categoriasArxiv(List<AreaInteres> areas) {
+        Set<String> categorias = new HashSet<>();
+        for (AreaInteres area : areas) {
+            if (area.getCategoria() != null) {
+                categorias.addAll(area.getCategoria().getArxiv());
+            }
+        }
+        return categorias;
+    }
+}
