@@ -1,4 +1,6 @@
-# Configuracion del explorador (se lee via ExploradorConfig)
+# Ejemplo de configuracion del explorador.
+# Copia este archivo a src/main/resources/config.properties y completa los valores.
+# El archivo config.properties NO se versiona para evitar subir credenciales.
 
 # Correo SMTP Gmail para notificaciones (RF01/RNF01)
 correo.emisor=TU_CORREO@gmail.com

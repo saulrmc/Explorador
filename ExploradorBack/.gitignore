@@ -1,9 +1,16 @@
 .mvn
+mvnw
+mvnw.cmd
 target/
-!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 .kotlin
+
+### Configuracion local (no versionar credenciales) ###
+Data/src/main/resources/config.properties
+
+### Datos generados en tiempo de ejecucion (JsonPersistencia) ###
+Data/**/*.json
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
