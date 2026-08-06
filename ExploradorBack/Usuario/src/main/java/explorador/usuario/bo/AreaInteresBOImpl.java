@@ -1,6 +1,5 @@
 package explorador.usuario.bo;
 
-import explorador.comun.Estado;
 import explorador.usuario.dao.AreaInteresDAO;
 import explorador.usuario.dao.AreaInteresDAOImpl;
 import explorador.usuario.modelo.AreaInteres;
@@ -30,19 +29,18 @@ public class AreaInteresBOImpl implements AreaInteresBO {
     }
 
     @Override
-    public AreaInteres guardar(AreaInteres area, Estado estado) {
+    public AreaInteres crear(AreaInteres area) {
         validarArea(area);
-        Objects.requireNonNull(estado, "El estado es obligatorio");
+        areaDao.crear(area);
+        return area;
+    }
 
-        if (estado == Estado.NUEVO) {
-            areaDao.crear(area);
-        } else if (estado == Estado.MODIFICADO) {
-            validarIdPositivo(area.getId());
-            if (!areaDao.actualizar(area)) {
-                throw new IllegalStateException("No se pudo actualizar el area con id: " + area.getId());
-            }
-        } else {
-            throw new IllegalArgumentException("Estado no soportado en guardar: " + estado);
+    @Override
+    public AreaInteres actualizar(AreaInteres area) {
+        validarArea(area);
+        validarIdPositivo(area.getId());
+        if (!areaDao.actualizar(area)) {
+            throw new IllegalStateException("No se pudo actualizar el area con id: " + area.getId());
         }
         return area;
     }

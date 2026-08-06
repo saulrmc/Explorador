@@ -1,5 +1,6 @@
 package explorador.publicaciones.bo;
 
+import explorador.data.ExploradorConfig;
 import explorador.fuentes.modelo.PublicacionBruta;
 import explorador.publicaciones.conceptos.ConceptoExtractor;
 import explorador.publicaciones.conceptos.ConceptoExtractorBasico;
@@ -7,12 +8,15 @@ import explorador.publicaciones.dao.PublicacionDAO;
 import explorador.publicaciones.dao.PublicacionDAOImpl;
 import explorador.publicaciones.modelo.Publicacion;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class PublicacionesBOImpl implements PublicacionesBO {
+
+    private static final Object BLOQUEO_ESCRITURA = new Object();
 
     private final PublicacionDAO publicacionDao;
     private final Formateador formateador;
@@ -34,17 +38,19 @@ public class PublicacionesBOImpl implements PublicacionesBO {
 
     @Override
     public List<Publicacion> registrarBrutas(List<PublicacionBruta> brutas) {
-        List<Publicacion> creadas = new ArrayList<>();
-        for (PublicacionBruta bruta : brutas) {
-            if (publicacionDao.existePorOrigen(bruta.getFuente(), bruta.getIdOrigen())) {
-                continue;
+        synchronized (BLOQUEO_ESCRITURA) {
+            List<Publicacion> creadas = new ArrayList<>();
+            for (PublicacionBruta bruta : brutas) {
+                if (publicacionDao.existePorOrigen(bruta.getFuente(), bruta.getIdOrigen())) {
+                    continue;
+                }
+                Publicacion publicacion = formateador.formatear(bruta);
+                publicacion.setConceptos(extractor.extraer(bruta.getResumen()));
+                publicacionDao.crear(publicacion);
+                creadas.add(publicacion);
             }
-            Publicacion publicacion = formateador.formatear(bruta);
-            publicacion.setConceptos(extractor.extraer(bruta.getResumen()));
-            publicacionDao.crear(publicacion);
-            creadas.add(publicacion);
+            return creadas;
         }
-        return creadas;
     }
 
     @Override
@@ -92,5 +98,28 @@ public class PublicacionesBOImpl implements PublicacionesBO {
                 .sorted((a, b) -> Double.compare(b.getScore(), a.getScore()))
                 .limit(limite)
                 .toList();
+    }
+
+    @Override
+    public Set<Integer> podar(Set<Integer> protegidos) {
+        int dias = Integer.parseInt(
+                ExploradorConfig.obtener("publicaciones.retencion_dias", "7"));
+        LocalDateTime limite = LocalDateTime.now().minusDays(dias);
+        Set<Integer> protegido = protegidos == null ? Set.of() : new HashSet<>(protegidos);
+
+        synchronized (BLOQUEO_ESCRITURA) {
+            Set<Integer> removidos = new HashSet<>();
+            for (Publicacion publicacion : publicacionDao.leerTodos()) {
+                if (protegido.contains(publicacion.getId())) {
+                    continue;
+                }
+                if (publicacion.getFechaIngreso() != null
+                        && publicacion.getFechaIngreso().isBefore(limite)) {
+                    publicacionDao.eliminar(publicacion.getId());
+                    removidos.add(publicacion.getId());
+                }
+            }
+            return removidos;
+        }
     }
 }

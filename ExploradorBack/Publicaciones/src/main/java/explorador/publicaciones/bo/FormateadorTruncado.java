@@ -24,6 +24,7 @@ public class FormateadorTruncado implements Formateador {
         publicacion.setUrl(bruta.getUrl());
         publicacion.setAutores(bruta.getAutores());
         publicacion.setEtiquetas(bruta.getEtiquetas());
+        publicacion.setPalabrasClave(bruta.getPalabrasClave());
         publicacion.setConfianza(bruta.getConfianza());
         publicacion.setFechaPublicacion(bruta.getFechaPublicacion());
         publicacion.setFechaIngreso(LocalDateTime.now());

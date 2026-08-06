@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 public class NotificadorBOImpl implements NotificadorBO {
 
@@ -57,6 +58,11 @@ public class NotificadorBOImpl implements NotificadorBO {
     @Override
     public boolean fueNotificada(int publicacionId) {
         return registroDao.existe(publicacionId);
+    }
+
+    @Override
+    public void limpiarPorPublicacionIds(Set<Integer> publicacionIds) {
+        registroDao.eliminarPorPublicacionIds(publicacionIds);
     }
 
     private void enviar(String destinatario, String asunto, String contenido) {

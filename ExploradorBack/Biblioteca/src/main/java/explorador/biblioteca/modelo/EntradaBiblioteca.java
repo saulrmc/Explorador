@@ -1,11 +1,13 @@
 package explorador.biblioteca.modelo;
 
+import explorador.publicaciones.modelo.Publicacion;
+
 import java.time.LocalDateTime;
 
-public class PublicacionGuardada {
+public class EntradaBiblioteca {
     private int id;
-    private int publicacionId;
     private LocalDateTime fechaGuardado;
+    private Publicacion publicacion;
 
     public int getId() {
         return id;
@@ -16,11 +18,7 @@ public class PublicacionGuardada {
     }
 
     public int getPublicacionId() {
-        return publicacionId;
-    }
-
-    public void setPublicacionId(int publicacionId) {
-        this.publicacionId = publicacionId;
+        return publicacion == null ? 0 : publicacion.getId();
     }
 
     public LocalDateTime getFechaGuardado() {
@@ -29,5 +27,13 @@ public class PublicacionGuardada {
 
     public void setFechaGuardado(LocalDateTime fechaGuardado) {
         this.fechaGuardado = fechaGuardado;
+    }
+
+    public Publicacion getPublicacion() {
+        return publicacion;
+    }
+
+    public void setPublicacion(Publicacion publicacion) {
+        this.publicacion = publicacion;
     }
 }

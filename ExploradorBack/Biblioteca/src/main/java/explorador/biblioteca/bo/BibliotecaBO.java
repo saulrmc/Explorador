@@ -1,16 +1,18 @@
 package explorador.biblioteca.bo;
 
-import explorador.biblioteca.modelo.PublicacionGuardada;
+import explorador.biblioteca.modelo.EntradaBiblioteca;
 import explorador.publicaciones.modelo.Publicacion;
 
 import java.util.List;
 
 public interface BibliotecaBO {
-    PublicacionGuardada guardar(Publicacion publicacion);
+    EntradaBiblioteca guardar(Publicacion publicacion);
 
-    List<PublicacionGuardada> listarGuardadas();
+    List<EntradaBiblioteca> listarGuardadas();
+
+    EntradaBiblioteca obtener(int id);
 
     void eliminar(int id);
 
-    List<PublicacionGuardada> listarPorTema(String tema);
+    List<EntradaBiblioteca> listarPorTema(String tema);
 }

@@ -1,9 +1,12 @@
 package explorador.biblioteca.modelo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NodoTema {
     private int id;
     private String nombre;
-    private TipoTema tipo;
+    private List<Integer> publicacionIds;
 
     public int getId() {
         return id;
@@ -21,11 +24,14 @@ public class NodoTema {
         this.nombre = nombre;
     }
 
-    public TipoTema getTipo() {
-        return tipo;
+    public List<Integer> getPublicacionIds() {
+        if (publicacionIds == null) {
+            publicacionIds = new ArrayList<>();
+        }
+        return publicacionIds;
     }
 
-    public void setTipo(TipoTema tipo) {
-        this.tipo = tipo;
+    public void setPublicacionIds(List<Integer> publicacionIds) {
+        this.publicacionIds = publicacionIds;
     }
 }

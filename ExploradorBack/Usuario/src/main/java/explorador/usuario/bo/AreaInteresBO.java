@@ -10,7 +10,9 @@ public interface AreaInteresBO {
 
     AreaInteres obtener(int id);
 
-    AreaInteres guardar(AreaInteres area, explorador.comun.Estado estado);
+    AreaInteres crear(AreaInteres area);
+
+    AreaInteres actualizar(AreaInteres area);
 
     void eliminar(int id);
 

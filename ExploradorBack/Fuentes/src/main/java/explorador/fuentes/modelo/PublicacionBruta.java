@@ -11,6 +11,7 @@ public class PublicacionBruta {
     private List<String> autores;
     private LocalDate fechaPublicacion;
     private List<String> etiquetas;
+    private List<String> palabrasClave;
     private String url;
     private double confianza;
 
@@ -68,6 +69,14 @@ public class PublicacionBruta {
 
     public void setEtiquetas(List<String> etiquetas) {
         this.etiquetas = etiquetas;
+    }
+
+    public List<String> getPalabrasClave() {
+        return palabrasClave;
+    }
+
+    public void setPalabrasClave(List<String> palabrasClave) {
+        this.palabrasClave = palabrasClave;
     }
 
     public String getUrl() {

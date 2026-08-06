@@ -45,4 +45,12 @@ public class HistorialBOImpl implements HistorialBO {
     public void limpiar() {
         historialDao.reemplazarTodos(new java.util.ArrayList<>());
     }
+
+    @Override
+    public void limpiarPorPublicacionIds(java.util.Set<Integer> publicacionIds) {
+        List<PublicacionConsultada> restantes = historialDao.leerTodos().stream()
+                .filter(registro -> !publicacionIds.contains(registro.getPublicacionId()))
+                .toList();
+        historialDao.reemplazarTodos(restantes);
+    }
 }

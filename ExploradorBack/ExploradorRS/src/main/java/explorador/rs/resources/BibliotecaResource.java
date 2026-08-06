@@ -11,7 +11,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import explorador.biblioteca.bo.BibliotecaBO;
 import explorador.biblioteca.bo.BibliotecaBOImpl;
-import explorador.biblioteca.modelo.PublicacionGuardada;
+import explorador.biblioteca.modelo.EntradaBiblioteca;
 import explorador.publicaciones.bo.PublicacionesBO;
 import explorador.publicaciones.bo.PublicacionesBOImpl;
 import explorador.publicaciones.modelo.Publicacion;
@@ -33,13 +33,25 @@ public class BibliotecaResource {
     }
 
     @GET
-    public List<PublicacionGuardada> listarGuardadas() {
+    public List<EntradaBiblioteca> listarGuardadas() {
         return bibliotecaBO.listarGuardadas();
     }
 
     @GET
+    @Path("/{id}")
+    public Response obtener(@PathParam("id") int id) {
+        EntradaBiblioteca entrada = bibliotecaBO.obtener(id);
+        if (entrada == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "Publicacion guardada no encontrada"))
+                    .build();
+        }
+        return Response.ok(entrada).build();
+    }
+
+    @GET
     @Path("/tema/{tema}")
-    public List<PublicacionGuardada> listarPorTema(@PathParam("tema") String tema) {
+    public List<EntradaBiblioteca> listarPorTema(@PathParam("tema") String tema) {
         return bibliotecaBO.listarPorTema(tema);
     }
 
@@ -53,10 +65,14 @@ public class BibliotecaResource {
                     .build();
         }
         try {
-            PublicacionGuardada guardada = bibliotecaBO.guardar(publicacion);
+            EntradaBiblioteca guardada = bibliotecaBO.guardar(publicacion);
             return Response.status(Response.Status.CREATED).entity(guardada).build();
         } catch (IllegalStateException e) {
             return Response.status(Response.Status.CONFLICT)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("error", e.getMessage()))
                     .build();
         }
@@ -70,6 +86,10 @@ public class BibliotecaResource {
             return Response.noContent().build();
         } catch (IllegalStateException e) {
             return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("error", e.getMessage()))
                     .build();
         }

@@ -15,6 +15,7 @@ public class Publicacion {
     private String url;
     private List<String> autores;
     private List<String> etiquetas;
+    private List<String> palabrasClave;
     private List<String> conceptos;
     private double score;
     private double confianza;
@@ -99,6 +100,14 @@ public class Publicacion {
 
     public void setEtiquetas(List<String> etiquetas) {
         this.etiquetas = etiquetas;
+    }
+
+    public List<String> getPalabrasClave() {
+        return palabrasClave;
+    }
+
+    public void setPalabrasClave(List<String> palabrasClave) {
+        this.palabrasClave = palabrasClave;
     }
 
     public List<String> getConceptos() {

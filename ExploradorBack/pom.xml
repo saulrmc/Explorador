@@ -28,6 +28,7 @@
         <version.jakarta.ws.rs>4.0.0</version.jakarta.ws.rs>
         <version.jakarta.servlet>6.1.0</version.jakarta.servlet>
         <version.jakarta.cdi>4.1.0</version.jakarta.cdi>
+        <version.junit>5.11.4</version.junit>
     </properties>
 
     <dependencyManagement>
@@ -57,7 +58,25 @@
                 <artifactId>jakarta.enterprise.cdi-api</artifactId>
                 <version>${version.jakarta.cdi}</version>
             </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${version.junit}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>

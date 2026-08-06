@@ -16,7 +16,6 @@ import explorador.usuario.bo.HistorialBO;
 import explorador.usuario.bo.HistorialBOImpl;
 import explorador.usuario.bo.UsuarioBO;
 import explorador.usuario.bo.UsuarioBOImpl;
-import explorador.comun.Estado;
 import explorador.usuario.modelo.AreaInteres;
 import explorador.usuario.modelo.CategoriaArea;
 import explorador.usuario.modelo.PublicacionConsultada;
@@ -79,7 +78,7 @@ public class UsuarioResource {
     @Path("/areas")
     public Response crearArea(AreaInteres area) {
         try {
-            AreaInteres creada = areaBO.guardar(area, Estado.NUEVO);
+            AreaInteres creada = areaBO.crear(area);
             return Response.status(Response.Status.CREATED).entity(creada).build();
         } catch (IllegalArgumentException | IllegalStateException e) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -98,7 +97,7 @@ public class UsuarioResource {
                         .entity(Map.of("error", "Area de interes no encontrada"))
                         .build();
             }
-            return Response.ok(areaBO.guardar(area, Estado.MODIFICADO)).build();
+            return Response.ok(areaBO.actualizar(area)).build();
         } catch (IllegalArgumentException | IllegalStateException e) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("error", e.getMessage()))

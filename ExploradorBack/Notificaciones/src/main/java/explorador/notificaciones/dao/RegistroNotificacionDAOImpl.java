@@ -5,6 +5,7 @@ import explorador.notificaciones.modelo.RegistroNotificacion;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class RegistroNotificacionDAOImpl implements RegistroNotificacionDAO {
 
@@ -31,5 +32,13 @@ public class RegistroNotificacionDAOImpl implements RegistroNotificacionDAO {
     public boolean existe(int publicacionId) {
         return leerTodos().stream()
                 .anyMatch(registro -> registro.getPublicacionId() == publicacionId);
+    }
+
+    @Override
+    public void eliminarPorPublicacionIds(Set<Integer> publicacionIds) {
+        List<RegistroNotificacion> restantes = leerTodos().stream()
+                .filter(registro -> !publicacionIds.contains(registro.getPublicacionId()))
+                .toList();
+        persistencia.escribir(ARCHIVO, restantes);
     }
 }

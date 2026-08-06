@@ -3,6 +3,9 @@ package explorador.rs.listener;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
+import explorador.biblioteca.bo.BibliotecaBO;
+import explorador.biblioteca.bo.BibliotecaBOImpl;
+import explorador.biblioteca.modelo.EntradaBiblioteca;
 import explorador.data.ExploradorConfig;
 import explorador.fuentes.bo.FuentesBO;
 import explorador.fuentes.bo.FuentesBOImpl;
@@ -14,6 +17,8 @@ import explorador.publicaciones.bo.PublicacionesBOImpl;
 import explorador.publicaciones.modelo.Publicacion;
 import explorador.usuario.bo.AreaInteresBO;
 import explorador.usuario.bo.AreaInteresBOImpl;
+import explorador.usuario.bo.HistorialBO;
+import explorador.usuario.bo.HistorialBOImpl;
 import explorador.usuario.bo.UsuarioBO;
 import explorador.usuario.bo.UsuarioBOImpl;
 import explorador.usuario.modelo.AreaInteres;
@@ -31,6 +36,7 @@ import java.util.stream.Collectors;
 public class AppStartupListener implements ServletContextListener {
 
     private ScheduledExecutorService planificador;
+    private ScheduledExecutorService planificadorPoda;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -39,6 +45,8 @@ public class AppStartupListener implements ServletContextListener {
         FuentesBO fuentesBO = new FuentesBOImpl();
         PublicacionesBO publicacionesBO = new PublicacionesBOImpl();
         NotificadorBO notificadorBO = new NotificadorBOImpl();
+        BibliotecaBO bibliotecaBO = new BibliotecaBOImpl();
+        HistorialBO historialBO = new HistorialBOImpl();
 
         int minutos = Integer.parseInt(
                 ExploradorConfig.obtener("fuente.arxiv.intervalo_minutos", "1"));
@@ -46,12 +54,21 @@ public class AppStartupListener implements ServletContextListener {
         planificador = Executors.newSingleThreadScheduledExecutor();
         planificador.scheduleAtFixedRate(() -> ejecutarCiclo(usuarioBO, areaBO, fuentesBO, publicacionesBO, notificadorBO),
                 0, minutos, TimeUnit.MINUTES);
+
+        int podaHoras = Integer.parseInt(
+                ExploradorConfig.obtener("publicaciones.poda_intervalo_horas", "24"));
+        planificadorPoda = Executors.newSingleThreadScheduledExecutor();
+        planificadorPoda.scheduleAtFixedRate(() -> ejecutarPoda(bibliotecaBO, publicacionesBO, historialBO, notificadorBO),
+                podaHoras, podaHoras, TimeUnit.HOURS);
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         if (planificador != null) {
             planificador.shutdownNow();
+        }
+        if (planificadorPoda != null) {
+            planificadorPoda.shutdownNow();
         }
     }
 
@@ -87,6 +104,26 @@ public class AppStartupListener implements ServletContextListener {
             }
         } catch (Exception e) {
             System.err.println("Error en el ciclo de consulta de fuentes: " + e.getMessage());
+        }
+    }
+
+    private void ejecutarPoda(BibliotecaBO bibliotecaBO, PublicacionesBO publicacionesBO,
+                              HistorialBO historialBO, NotificadorBO notificadorBO) {
+        try {
+            Set<Integer> protegidos = bibliotecaBO.listarGuardadas().stream()
+                    .map(EntradaBiblioteca::getPublicacionId)
+                    .collect(Collectors.toSet());
+
+            Set<Integer> removidos = publicacionesBO.podar(protegidos);
+            if (removidos.isEmpty()) {
+                return;
+            }
+
+            historialBO.limpiarPorPublicacionIds(removidos);
+            notificadorBO.limpiarPorPublicacionIds(removidos);
+            System.out.println("Poda: " + removidos.size() + " publicaciones eliminadas.");
+        } catch (Exception e) {
+            System.err.println("Error en la poda de publicaciones: " + e.getMessage());
         }
     }
 

@@ -18,4 +18,6 @@ public interface PublicacionesBO {
     Publicacion obtener(int id);
 
     List<Publicacion> listarRelacionadas(int id, int limite);
+
+    Set<Integer> podar(Set<Integer> protegidos);
 }
