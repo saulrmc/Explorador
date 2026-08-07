@@ -11,9 +11,12 @@ import jakarta.ws.rs.core.Response;
 import explorador.data.ExploradorConfig;
 import explorador.publicaciones.bo.PublicacionesBO;
 import explorador.publicaciones.bo.PublicacionesBOImpl;
+import explorador.publicaciones.conceptos.DefinicionConcepto;
 import explorador.publicaciones.modelo.Publicacion;
 import explorador.usuario.bo.AreaInteresBO;
 import explorador.usuario.bo.AreaInteresBOImpl;
+import explorador.usuario.bo.HistorialBO;
+import explorador.usuario.bo.HistorialBOImpl;
 import explorador.usuario.modelo.AreaInteres;
 
 import java.util.List;
@@ -28,10 +31,12 @@ public class PublicacionesResource {
 
     private final PublicacionesBO publicacionesBO;
     private final AreaInteresBO areaBO;
+    private final HistorialBO historialBO;
 
     public PublicacionesResource() {
         this.publicacionesBO = new PublicacionesBOImpl();
         this.areaBO = new AreaInteresBOImpl();
+        this.historialBO = new HistorialBOImpl();
     }
 
     @GET
@@ -56,18 +61,49 @@ public class PublicacionesResource {
                     .entity(Map.of("error", "Publicacion no encontrada"))
                     .build();
         }
+        try {
+            historialBO.registrar(id, publicacion.getTitulo());
+        } catch (IllegalArgumentException e) {
+            System.err.println("No se pudo registrar la consulta en el historial: " + e.getMessage());
+        }
         return Response.ok(publicacion).build();
     }
 
     @GET
     @Path("/{id}/relacionadas")
-    public Response listarRelacionadas(@PathParam("id") int id) {
+    public Response listarRelacionadas(@PathParam("id") int id,
+                                       @QueryParam("limite") Integer limite) {
         if (publicacionesBO.obtener(id) == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(Map.of("error", "Publicacion no encontrada"))
                     .build();
         }
-        return Response.ok(publicacionesBO.listarRelacionadas(id, 5)).build();
+        int max = limite != null ? limite : 5;
+        return Response.ok(publicacionesBO.listarRelacionadas(id, max)).build();
+    }
+
+    @GET
+    @Path("/{id}/conceptos/{concepto}/definicion")
+    public Response definirConcepto(@PathParam("id") int id,
+                                    @PathParam("concepto") String concepto) {
+        if (publicacionesBO.obtener(id) == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "Publicacion no encontrada"))
+                    .build();
+        }
+        try {
+            DefinicionConcepto definicion = publicacionesBO.definirConcepto(concepto);
+            if (definicion == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(Map.of("error", "No se encontro definicion para el concepto: " + concepto))
+                        .build();
+            }
+            return Response.ok(definicion).build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.BAD_GATEWAY)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
     }
 
     private Set<String> obtenerKeywords() {

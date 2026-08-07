@@ -4,12 +4,16 @@ import explorador.data.ExploradorConfig;
 import explorador.fuentes.modelo.PublicacionBruta;
 import explorador.publicaciones.conceptos.ConceptoExtractor;
 import explorador.publicaciones.conceptos.ConceptoExtractorBasico;
+import explorador.publicaciones.conceptos.DefinicionConcepto;
+import explorador.publicaciones.conceptos.FuenteDefinicion;
+import explorador.publicaciones.conceptos.WikipediaFuenteDefinicion;
 import explorador.publicaciones.dao.PublicacionDAO;
 import explorador.publicaciones.dao.PublicacionDAOImpl;
 import explorador.publicaciones.modelo.Publicacion;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,23 +21,33 @@ import java.util.Set;
 public class PublicacionesBOImpl implements PublicacionesBO {
 
     private static final Object BLOQUEO_ESCRITURA = new Object();
+    private static final int PESO_ETIQUETA = 2;
 
     private final PublicacionDAO publicacionDao;
     private final Formateador formateador;
     private final Ranker ranker;
     private final ConceptoExtractor extractor;
+    private final FuenteDefinicion fuenteDefinicion;
 
     public PublicacionesBOImpl() {
         this(new PublicacionDAOImpl(), new FormateadorTruncado(),
-                new RankerDeterminista(), new ConceptoExtractorBasico());
+                new RankerDeterminista(), new ConceptoExtractorBasico(),
+                new WikipediaFuenteDefinicion());
     }
 
     public PublicacionesBOImpl(PublicacionDAO publicacionDao, Formateador formateador,
                                Ranker ranker, ConceptoExtractor extractor) {
+        this(publicacionDao, formateador, ranker, extractor, new WikipediaFuenteDefinicion());
+    }
+
+    public PublicacionesBOImpl(PublicacionDAO publicacionDao, Formateador formateador,
+                               Ranker ranker, ConceptoExtractor extractor,
+                               FuenteDefinicion fuenteDefinicion) {
         this.publicacionDao = publicacionDao;
         this.formateador = formateador;
         this.ranker = ranker;
         this.extractor = extractor;
+        this.fuenteDefinicion = fuenteDefinicion;
     }
 
     @Override
@@ -81,23 +95,32 @@ public class PublicacionesBOImpl implements PublicacionesBO {
             return List.of();
         }
 
-        Set<String> conceptosBase = new HashSet<>(base.getConceptos());
-        Set<String> etiquetasBase = new HashSet<>(base.getEtiquetas());
+        Set<String> etiquetasBase = conjunto(base.getEtiquetas());
+        Set<String> conceptosBase = conjunto(base.getConceptos());
 
         return publicacionDao.leerTodos().stream()
                 .filter(publicacion -> publicacion.getId() != id)
-                .peek(publicacion -> {
-                    long comunes = conceptosBase.stream()
-                                    .filter(concepto -> publicacion.getConceptos().contains(concepto))
-                                    .count()
-                            + etiquetasBase.stream()
-                                    .filter(etiqueta -> publicacion.getEtiquetas().contains(etiqueta))
-                                    .count();
-                    publicacion.setScore(comunes);
-                })
-                .sorted((a, b) -> Double.compare(b.getScore(), a.getScore()))
+                .map(publicacion -> new Relacion(publicacion, puntaje(publicacion, etiquetasBase, conceptosBase)))
+                .filter(relacion -> relacion.puntaje() > 0)
+                .sorted(Comparator.comparingLong(Relacion::puntaje).reversed())
                 .limit(limite)
+                .map(Relacion::publicacion)
                 .toList();
+    }
+
+    private long puntaje(Publicacion publicacion, Set<String> etiquetasBase, Set<String> conceptosBase) {
+        Set<String> etiquetas = conjunto(publicacion.getEtiquetas());
+        Set<String> conceptos = conjunto(publicacion.getConceptos());
+        long etiquetasComunes = etiquetasBase.stream().filter(etiquetas::contains).count();
+        long conceptosComunes = conceptosBase.stream().filter(conceptos::contains).count();
+        return PESO_ETIQUETA * etiquetasComunes + conceptosComunes;
+    }
+
+    private Set<String> conjunto(List<String> valores) {
+        return valores == null ? Set.of() : new HashSet<>(valores);
+    }
+
+    private record Relacion(Publicacion publicacion, long puntaje) {
     }
 
     @Override
@@ -121,5 +144,10 @@ public class PublicacionesBOImpl implements PublicacionesBO {
             }
             return removidos;
         }
+    }
+
+    @Override
+    public DefinicionConcepto definirConcepto(String concepto) {
+        return fuenteDefinicion.definir(concepto);
     }
 }

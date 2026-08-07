@@ -208,5 +208,10 @@ class BibliotecaBOImplTest {
         public Set<Integer> podar(Set<Integer> protegidos) {
             return Set.of();
         }
+
+        @Override
+        public explorador.publicaciones.conceptos.DefinicionConcepto definirConcepto(String concepto) {
+            return null;
+        }
     }
 }

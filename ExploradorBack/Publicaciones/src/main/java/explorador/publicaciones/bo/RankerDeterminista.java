@@ -5,6 +5,8 @@ import explorador.publicaciones.modelo.Publicacion;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,20 +40,30 @@ public class RankerDeterminista implements Ranker {
         if (keywords == null || keywords.isEmpty()) {
             return 0.0;
         }
-        String texto = (publicacion.getTitulo() + " " + publicacion.getDescripcion()
-                + " " + publicacion.getEtiquetas()).toLowerCase();
+        Set<String> tokensTexto = tokensTexto(publicacion);
         int coincidencias = 0;
         int total = 0;
         for (String keyword : keywords) {
             for (String token : keyword.toLowerCase().split("\\s+")) {
                 if (token.length() >= 3) {
                     total++;
-                    if (texto.contains(token)) {
+                    if (tokensTexto.contains(token)) {
                         coincidencias++;
                     }
                 }
             }
         }
         return total == 0 ? 0.0 : (double) coincidencias / total;
+    }
+
+    private Set<String> tokensTexto(Publicacion publicacion) {
+        String texto = publicacion.getTitulo() + " " + publicacion.getDescripcion()
+                + " " + String.join(" ", etiquetasO(publicacion));
+        return new HashSet<>(Arrays.asList(texto.toLowerCase().split("[^a-z0-9]+")));
+    }
+
+    private List<String> etiquetasO(Publicacion publicacion) {
+        List<String> etiquetas = publicacion.getEtiquetas();
+        return etiquetas == null ? List.of() : etiquetas;
     }
 }

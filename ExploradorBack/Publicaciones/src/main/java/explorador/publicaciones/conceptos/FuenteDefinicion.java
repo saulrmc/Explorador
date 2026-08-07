@@ -1,5 +1,5 @@
 package explorador.publicaciones.conceptos;
 
 public interface FuenteDefinicion {
-    String definir(String concepto);
+    DefinicionConcepto definir(String concepto);
 }

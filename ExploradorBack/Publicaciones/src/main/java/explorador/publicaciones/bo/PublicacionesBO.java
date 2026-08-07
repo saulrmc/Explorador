@@ -1,6 +1,7 @@
 package explorador.publicaciones.bo;
 
 import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.publicaciones.conceptos.DefinicionConcepto;
 import explorador.publicaciones.modelo.Publicacion;
 
 import java.util.List;
@@ -20,4 +21,6 @@ public interface PublicacionesBO {
     List<Publicacion> listarRelacionadas(int id, int limite);
 
     Set<Integer> podar(Set<Integer> protegidos);
+
+    DefinicionConcepto definirConcepto(String concepto);
 }
