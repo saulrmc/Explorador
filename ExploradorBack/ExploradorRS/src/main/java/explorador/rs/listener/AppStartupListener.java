@@ -9,7 +9,7 @@ import explorador.biblioteca.modelo.EntradaBiblioteca;
 import explorador.data.ExploradorConfig;
 import explorador.fuentes.bo.FuentesBO;
 import explorador.fuentes.bo.FuentesBOImpl;
-import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.notificaciones.bo.NotificadorBO;
 import explorador.notificaciones.bo.NotificadorBOImpl;
 import explorador.publicaciones.bo.PublicacionesBO;
@@ -86,8 +86,8 @@ public class AppStartupListener implements ServletContextListener {
                     .map(AreaInteres::getNombre)
                     .collect(Collectors.toSet());
 
-            List<PublicacionBruta> brutas = fuentesBO.procesar(categorias, keywords);
-            List<Publicacion> nuevas = publicacionesBO.registrarBrutas(brutas);
+            List<PublicacionOriginal> originales = fuentesBO.procesar(categorias, keywords);
+            List<Publicacion> nuevas = publicacionesBO.registrarBrutas(originales);
             System.out.println("Ciclo de fuentes: " + nuevas.size() + " publicaciones nuevas.");
 
             if (nuevas.isEmpty()) {

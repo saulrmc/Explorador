@@ -1,6 +1,6 @@
 package explorador.publicaciones.bo;
 
-import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.conceptos.ConceptoExtractorBasico;
 import explorador.publicaciones.conceptos.DefinicionConcepto;
 import explorador.publicaciones.conceptos.FuenteDefinicion;
@@ -46,7 +46,7 @@ class PublicacionesBOImplTest {
         Publicacion creada = publicaciones.registrarBrutas(List.of(bruta("arxiv", "abc"))).get(0);
 
         assertTrue(creada.getFechaIngreso() != null);
-        assertTrue(creada.getUrl().endsWith("/abc"));
+        assertTrue(creada.getOriginal().getUrl().endsWith("/abc"));
     }
 
     @Test
@@ -107,15 +107,15 @@ class PublicacionesBOImplTest {
         assertEquals("Definicion de aprendizaje", definicion.getDefinicion());
     }
 
-    private PublicacionBruta bruta(String fuente, String idOrigen) {
-        PublicacionBruta bruta = new PublicacionBruta();
-        bruta.setFuente(fuente);
-        bruta.setIdOrigen(idOrigen);
-        bruta.setTitulo("Titulo de prueba con varias palabras");
-        bruta.setResumen("Resumen de prueba");
-        bruta.setUrl("https://arxiv.org/abs/" + idOrigen);
-        bruta.setEtiquetas(List.of("cs.AI"));
-        return bruta;
+    private PublicacionOriginal bruta(String fuente, String idOrigen) {
+        PublicacionOriginal original = new PublicacionOriginal();
+        original.setFuente(fuente);
+        original.setIdOrigen(idOrigen);
+        original.setTitulo("Titulo de prueba con varias palabras");
+        original.setResumen("Resumen de prueba");
+        original.setUrl("https://arxiv.org/abs/" + idOrigen);
+        original.setEtiquetas(List.of("cs.AI"));
+        return original;
     }
 
     private Publicacion publicacion(int id, List<String> etiquetas, List<String> conceptos) {
@@ -123,7 +123,9 @@ class PublicacionesBOImplTest {
         publicacion.setId(id);
         publicacion.setTitulo("Titulo " + id);
         publicacion.setDescripcion("Descripcion " + id);
-        publicacion.setEtiquetas(etiquetas);
+        PublicacionOriginal original = new PublicacionOriginal();
+        original.setEtiquetas(etiquetas);
+        publicacion.setOriginal(original);
         publicacion.setConceptos(conceptos);
         return publicacion;
     }
@@ -172,10 +174,15 @@ class PublicacionesBOImplTest {
         @Override
         public boolean existePorOrigen(String fuente, String idOrigen) {
             return porId.values().stream()
-                    .anyMatch(publicacion -> publicacion.getFuente() != null
-                            && publicacion.getFuente().equals(fuente)
-                            && publicacion.getIdOrigen() != null
-                            && publicacion.getIdOrigen().equals(idOrigen));
+                    .anyMatch(publicacion -> publicacion.getOriginal() != null
+                            && publicacion.getOriginal().getFuente() != null
+                            && publicacion.getOriginal().getFuente().equals(fuente)
+                            && publicacion.getOriginal().getIdOrigen() != null
+                            && publicacion.getOriginal().getIdOrigen().equals(idOrigen));
+        }
+
+        @Override
+        public void guardar() {
         }
     }
 }

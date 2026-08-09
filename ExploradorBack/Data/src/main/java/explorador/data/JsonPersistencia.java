@@ -19,12 +19,20 @@ public final class JsonPersistencia {
     private final Path directorio;
 
     public JsonPersistencia(String nombreModulo) {
-        this(nombreModulo, crearMapper());
+        this(nombreModulo, crearMapper(), Paths.get("Data"));
     }
 
     public JsonPersistencia(String nombreModulo, ObjectMapper mapper) {
+        this(nombreModulo, mapper, Paths.get("Data"));
+    }
+
+    public JsonPersistencia(String nombreModulo, Path directorioBase) {
+        this(nombreModulo, crearMapper(), directorioBase);
+    }
+
+    public JsonPersistencia(String nombreModulo, ObjectMapper mapper, Path directorioBase) {
         this.mapper = mapper;
-        this.directorio = Paths.get("Data", nombreModulo);
+        this.directorio = directorioBase.resolve(nombreModulo);
     }
 
     public <T> T leer(String nombreArchivo, Class<T> tipo) {

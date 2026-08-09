@@ -23,9 +23,17 @@ public class RankerDeterminista implements Ranker {
     }
 
     private double calcular(Publicacion publicacion, Set<String> keywords) {
-        double recencia = recencia(publicacion.getFechaPublicacion());
+        double recencia = recencia(fechaPublicacion(publicacion));
         double coincidencia = coincidencia(publicacion, keywords);
-        return 0.5 * recencia + 0.4 * coincidencia + 0.1 * publicacion.getConfianza();
+        return 0.5 * recencia + 0.4 * coincidencia + 0.1 * confianza(publicacion);
+    }
+
+    private LocalDate fechaPublicacion(Publicacion publicacion) {
+        return publicacion.getOriginal() == null ? null : publicacion.getOriginal().getFechaPublicacion();
+    }
+
+    private double confianza(Publicacion publicacion) {
+        return publicacion.getOriginal() == null ? 0.0 : publicacion.getOriginal().getConfianza();
     }
 
     private double recencia(LocalDate fechaPublicacion) {
@@ -63,7 +71,10 @@ public class RankerDeterminista implements Ranker {
     }
 
     private List<String> etiquetasO(Publicacion publicacion) {
-        List<String> etiquetas = publicacion.getEtiquetas();
+        if (publicacion.getOriginal() == null) {
+            return List.of();
+        }
+        List<String> etiquetas = publicacion.getOriginal().getEtiquetas();
         return etiquetas == null ? List.of() : etiquetas;
     }
 }

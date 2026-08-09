@@ -172,7 +172,7 @@ public class BibliotecaBOImpl implements BibliotecaBO {
 
     private List<Integer> nodosPara(GrafoTematica grafo, Publicacion publicacion) {
         List<Integer> ids = new ArrayList<>();
-        for (String keyword : copiar(publicacion.getPalabrasClave())) {
+        for (String keyword : copiar(publicacion.getOriginal().getPalabrasClave())) {
             if (keyword == null || keyword.isBlank()) {
                 continue;
             }

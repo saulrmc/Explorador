@@ -43,7 +43,7 @@ public class NotificadorBOImpl implements NotificadorBO {
             String asunto = primerasPalabras(publicacion.getTitulo(), MAX_PALABRAS_ASUNTO);
             String contenido = publicacion.getTitulo() + "\n\n"
                     + publicacion.getDescripcion() + "\n\n"
-                    + "Articulo original: " + publicacion.getUrl();
+                    + "Articulo original: " + publicacion.getOriginal().getUrl();
 
             enviar(correoDestino, asunto, contenido);
 

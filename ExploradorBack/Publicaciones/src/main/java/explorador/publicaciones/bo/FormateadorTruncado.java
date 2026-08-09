@@ -1,6 +1,6 @@
 package explorador.publicaciones.bo;
 
-import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.modelo.Publicacion;
 
 import java.time.LocalDateTime;
@@ -13,23 +13,14 @@ public class FormateadorTruncado implements Formateador {
     private static final int MAX_PALABRAS_DESCRIPCION = 40;
 
     @Override
-    public Publicacion formatear(PublicacionBruta bruta) {
+    public Publicacion formatear(PublicacionOriginal original) {
         Publicacion publicacion = new Publicacion();
-        publicacion.setIdOrigen(bruta.getIdOrigen());
-        publicacion.setFuente(bruta.getFuente());
-        publicacion.setTituloOriginal(bruta.getTitulo());
-        publicacion.setTitulo(primerasPalabras(bruta.getTitulo(), MAX_PALABRAS_TITULO));
-        publicacion.setResumenOriginal(bruta.getResumen());
-        publicacion.setDescripcion(primerasPalabras(bruta.getResumen(), MAX_PALABRAS_DESCRIPCION));
-        publicacion.setUrl(bruta.getUrl());
-        publicacion.setAutores(bruta.getAutores());
-        publicacion.setEtiquetas(bruta.getEtiquetas());
-        publicacion.setPalabrasClave(bruta.getPalabrasClave());
-        publicacion.setConfianza(bruta.getConfianza());
-        publicacion.setFechaPublicacion(bruta.getFechaPublicacion());
-        publicacion.setFechaIngreso(LocalDateTime.now());
-        publicacion.setScore(0.0);
+        publicacion.setTitulo(primerasPalabras(original.getTitulo(), MAX_PALABRAS_TITULO));
+        publicacion.setDescripcion(primerasPalabras(original.getResumen(), MAX_PALABRAS_DESCRIPCION));
         publicacion.setConceptos(new ArrayList<>());
+        publicacion.setScore(0.0);
+        publicacion.setFechaIngreso(LocalDateTime.now());
+        publicacion.setOriginal(original);
         return publicacion;
     }
 

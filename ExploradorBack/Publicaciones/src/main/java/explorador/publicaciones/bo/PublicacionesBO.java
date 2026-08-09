@@ -1,6 +1,6 @@
 package explorador.publicaciones.bo;
 
-import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.conceptos.DefinicionConcepto;
 import explorador.publicaciones.modelo.Publicacion;
 
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface PublicacionesBO {
-    List<Publicacion> registrarBrutas(List<PublicacionBruta> brutas);
+    List<Publicacion> registrarBrutas(List<PublicacionOriginal> originales);
 
     List<Publicacion> listarLimitadas(Set<String> keywords, int limite);
 

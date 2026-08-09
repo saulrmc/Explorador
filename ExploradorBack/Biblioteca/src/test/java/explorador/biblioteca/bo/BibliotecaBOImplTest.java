@@ -4,7 +4,7 @@ import explorador.biblioteca.dao.BibliotecaDAO;
 import explorador.biblioteca.modelo.EntradaBiblioteca;
 import explorador.biblioteca.modelo.GrafoTematica;
 import explorador.biblioteca.modelo.PublicacionGuardada;
-import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.bo.PublicacionesBO;
 import explorador.publicaciones.modelo.Publicacion;
 import org.junit.jupiter.api.Test;
@@ -130,7 +130,9 @@ class BibliotecaBOImplTest {
         Publicacion publicacion = new Publicacion();
         publicacion.setId(id);
         publicacion.setTitulo("Titulo " + id);
-        publicacion.setPalabrasClave(palabrasClave);
+        PublicacionOriginal original = new PublicacionOriginal();
+        original.setPalabrasClave(palabrasClave);
+        publicacion.setOriginal(original);
         return publicacion;
     }
 
@@ -175,7 +177,7 @@ class BibliotecaBOImplTest {
         }
 
         @Override
-        public List<Publicacion> registrarBrutas(List<PublicacionBruta> brutas) {
+        public List<Publicacion> registrarBrutas(List<PublicacionOriginal> originales) {
             return List.of();
         }
 

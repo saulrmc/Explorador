@@ -1,5 +1,6 @@
 package explorador.publicaciones.bo;
 
+import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.modelo.Publicacion;
 import org.junit.jupiter.api.Test;
 
@@ -38,9 +39,9 @@ class RankerDeterministaTest {
     @Test
     void sinKeywordsElOrdenDependeSoloDeRecencia() {
         Publicacion antigua = publicacion("titulo");
-        antigua.setFechaPublicacion(LocalDate.now().minusDays(10));
+        antigua.getOriginal().setFechaPublicacion(LocalDate.now().minusDays(10));
         Publicacion reciente = publicacion("titulo");
-        reciente.setFechaPublicacion(LocalDate.now());
+        reciente.getOriginal().setFechaPublicacion(LocalDate.now());
 
         List<Publicacion> ordenadas = ranker.ordenar(List.of(antigua, reciente), Set.of());
 
@@ -51,7 +52,7 @@ class RankerDeterministaTest {
     @Test
     void laRecenciaDecaeConLaAntiguedad() {
         Publicacion hoy = publicacion("titulo");
-        hoy.setFechaPublicacion(LocalDate.now());
+        hoy.getOriginal().setFechaPublicacion(LocalDate.now());
 
         List<Publicacion> ordenadas = ranker.ordenar(List.of(hoy), Set.of());
 
@@ -77,9 +78,11 @@ class RankerDeterministaTest {
         publicacion.setId((titulo + descripcion).hashCode());
         publicacion.setTitulo(titulo);
         publicacion.setDescripcion(descripcion);
-        publicacion.setEtiquetas(etiquetas);
-        publicacion.setConfianza(0.5);
-        publicacion.setFechaPublicacion(LocalDate.now());
+        PublicacionOriginal original = new PublicacionOriginal();
+        original.setEtiquetas(etiquetas);
+        original.setConfianza(0.5);
+        original.setFechaPublicacion(LocalDate.now());
+        publicacion.setOriginal(original);
         return publicacion;
     }
 }

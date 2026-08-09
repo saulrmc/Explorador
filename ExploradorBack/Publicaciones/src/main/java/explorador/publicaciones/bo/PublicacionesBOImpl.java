@@ -1,7 +1,7 @@
 package explorador.publicaciones.bo;
 
 import explorador.data.ExploradorConfig;
-import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.conceptos.ConceptoExtractor;
 import explorador.publicaciones.conceptos.ConceptoExtractorBasico;
 import explorador.publicaciones.conceptos.DefinicionConcepto;
@@ -20,7 +20,6 @@ import java.util.Set;
 
 public class PublicacionesBOImpl implements PublicacionesBO {
 
-    private static final Object BLOQUEO_ESCRITURA = new Object();
     private static final int PESO_ETIQUETA = 2;
 
     private final PublicacionDAO publicacionDao;
@@ -51,20 +50,22 @@ public class PublicacionesBOImpl implements PublicacionesBO {
     }
 
     @Override
-    public List<Publicacion> registrarBrutas(List<PublicacionBruta> brutas) {
-        synchronized (BLOQUEO_ESCRITURA) {
-            List<Publicacion> creadas = new ArrayList<>();
-            for (PublicacionBruta bruta : brutas) {
-                if (publicacionDao.existePorOrigen(bruta.getFuente(), bruta.getIdOrigen())) {
+    public List<Publicacion> registrarBrutas(List<PublicacionOriginal> originales) {
+        List<Publicacion> creadas = new ArrayList<>();
+        try {
+            for (PublicacionOriginal original : originales) {
+                if (publicacionDao.existePorOrigen(original.getFuente(), original.getIdOrigen())) {
                     continue;
                 }
-                Publicacion publicacion = formateador.formatear(bruta);
-                publicacion.setConceptos(extractor.extraer(bruta.getResumen()));
+                Publicacion publicacion = formateador.formatear(original);
+                publicacion.setConceptos(extractor.extraer(original.getResumen()));
                 publicacionDao.crear(publicacion);
                 creadas.add(publicacion);
             }
-            return creadas;
+        } finally {
+            publicacionDao.guardar();
         }
+        return creadas;
     }
 
     @Override
@@ -95,7 +96,7 @@ public class PublicacionesBOImpl implements PublicacionesBO {
             return List.of();
         }
 
-        Set<String> etiquetasBase = conjunto(base.getEtiquetas());
+        Set<String> etiquetasBase = conjunto(etiquetas(base));
         Set<String> conceptosBase = conjunto(base.getConceptos());
 
         return publicacionDao.leerTodos().stream()
@@ -109,11 +110,19 @@ public class PublicacionesBOImpl implements PublicacionesBO {
     }
 
     private long puntaje(Publicacion publicacion, Set<String> etiquetasBase, Set<String> conceptosBase) {
-        Set<String> etiquetas = conjunto(publicacion.getEtiquetas());
+        Set<String> etiquetas = conjunto(etiquetas(publicacion));
         Set<String> conceptos = conjunto(publicacion.getConceptos());
         long etiquetasComunes = etiquetasBase.stream().filter(etiquetas::contains).count();
         long conceptosComunes = conceptosBase.stream().filter(conceptos::contains).count();
         return PESO_ETIQUETA * etiquetasComunes + conceptosComunes;
+    }
+
+    private List<String> etiquetas(Publicacion publicacion) {
+        if (publicacion.getOriginal() == null) {
+            return List.of();
+        }
+        List<String> etiquetas = publicacion.getOriginal().getEtiquetas();
+        return etiquetas == null ? List.of() : etiquetas;
     }
 
     private Set<String> conjunto(List<String> valores) {
@@ -130,8 +139,8 @@ public class PublicacionesBOImpl implements PublicacionesBO {
         LocalDateTime limite = LocalDateTime.now().minusDays(dias);
         Set<Integer> protegido = protegidos == null ? Set.of() : new HashSet<>(protegidos);
 
-        synchronized (BLOQUEO_ESCRITURA) {
-            Set<Integer> removidos = new HashSet<>();
+        Set<Integer> removidos = new HashSet<>();
+        try {
             for (Publicacion publicacion : publicacionDao.leerTodos()) {
                 if (protegido.contains(publicacion.getId())) {
                     continue;
@@ -142,8 +151,10 @@ public class PublicacionesBOImpl implements PublicacionesBO {
                     removidos.add(publicacion.getId());
                 }
             }
-            return removidos;
+        } finally {
+            publicacionDao.guardar();
         }
+        return removidos;
     }
 
     @Override

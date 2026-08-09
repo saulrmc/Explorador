@@ -1,6 +1,6 @@
 package explorador.publicaciones.bo;
 
-import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.modelo.Publicacion;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +13,7 @@ class FormateadorTruncadoTest {
 
     @Test
     void tituloSeTruncaAMaximo10Palabras() {
-        PublicacionBruta bruta = bruta(larga("palabra ", 15), larga("concepto ", 60));
+        PublicacionOriginal bruta = bruta(larga("palabra ", 15), larga("concepto ", 60));
 
         Publicacion publicacion = formateador.formatear(bruta);
 
@@ -22,7 +22,7 @@ class FormateadorTruncadoTest {
 
     @Test
     void descripcionSeTruncaAMaximo40Palabras() {
-        PublicacionBruta bruta = bruta(larga("palabra ", 5), larga("concepto ", 60));
+        PublicacionOriginal bruta = bruta(larga("palabra ", 5), larga("concepto ", 60));
 
         Publicacion publicacion = formateador.formatear(bruta);
 
@@ -31,7 +31,7 @@ class FormateadorTruncadoTest {
 
     @Test
     void textosCortosNoSeModifican() {
-        PublicacionBruta bruta = bruta("Titulo corto", "Resumen breve");
+        PublicacionOriginal bruta = bruta("Titulo corto", "Resumen breve");
 
         Publicacion publicacion = formateador.formatear(bruta);
 
@@ -43,18 +43,18 @@ class FormateadorTruncadoTest {
     void conservaTituloYResumenOriginales() {
         String titulo = larga("palabra ", 15);
         String resumen = larga("concepto ", 60);
-        PublicacionBruta bruta = bruta(titulo, resumen);
+        PublicacionOriginal bruta = bruta(titulo, resumen);
 
         Publicacion publicacion = formateador.formatear(bruta);
 
-        assertEquals(titulo, publicacion.getTituloOriginal());
-        assertEquals(resumen, publicacion.getResumenOriginal());
+        assertEquals(titulo, publicacion.getOriginal().getTitulo());
+        assertEquals(resumen, publicacion.getOriginal().getResumen());
         assertTrue(publicacion.getFechaIngreso() != null);
     }
 
     @Test
     void textosNulosOTextosConEspaciosProducenCadenaVacia() {
-        PublicacionBruta bruta = bruta(null, "   ");
+        PublicacionOriginal bruta = bruta(null, "   ");
 
         Publicacion publicacion = formateador.formatear(bruta);
 
@@ -62,8 +62,8 @@ class FormateadorTruncadoTest {
         assertEquals("", publicacion.getDescripcion());
     }
 
-    private PublicacionBruta bruta(String titulo, String resumen) {
-        PublicacionBruta bruta = new PublicacionBruta();
+    private PublicacionOriginal bruta(String titulo, String resumen) {
+        PublicacionOriginal bruta = new PublicacionOriginal();
         bruta.setIdOrigen("1234");
         bruta.setFuente("arxiv");
         bruta.setTitulo(titulo);

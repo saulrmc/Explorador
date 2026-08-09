@@ -1,6 +1,6 @@
 package explorador.fuentes.bo;
 
-import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.fuentes.modelo.PublicacionOriginal;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -28,7 +28,7 @@ public class ArxivAdapter implements FuenteAdapter {
     }
 
     @Override
-    public List<PublicacionBruta> consultarRecientes(Set<String> categorias, int maxResultados) {
+    public List<PublicacionOriginal> consultarRecientes(Set<String> categorias, int maxResultados) {
         if (categorias == null || categorias.isEmpty()) {
             return new ArrayList<>();
         }
@@ -64,8 +64,8 @@ public class ArxivAdapter implements FuenteAdapter {
         }
     }
 
-    private List<PublicacionBruta> parsear(String xml) {
-        List<PublicacionBruta> publicaciones = new ArrayList<>();
+    private List<PublicacionOriginal> parsear(String xml) {
+        List<PublicacionOriginal> publicaciones = new ArrayList<>();
         try {
             DocumentBuilderFactory factoria = DocumentBuilderFactory.newInstance();
             factoria.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
@@ -80,7 +80,7 @@ public class ArxivAdapter implements FuenteAdapter {
                 String idUrl = texto(entrada, "id");
                 String id = idUrl.substring(idUrl.lastIndexOf('/') + 1);
 
-                PublicacionBruta pub = new PublicacionBruta();
+                PublicacionOriginal pub = new PublicacionOriginal();
                 pub.setIdOrigen(id);
                 pub.setFuente(nombre());
                 pub.setTitulo(normalizar(texto(entrada, "title")));

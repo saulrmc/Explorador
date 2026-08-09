@@ -1,6 +1,6 @@
 package explorador.fuentes.bo;
 
-import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.fuentes.modelo.PublicacionOriginal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class FiltroRelevancia {
 
-    public List<PublicacionBruta> filtrar(List<PublicacionBruta> publicaciones, Set<String> keywords) {
+    public List<PublicacionOriginal> filtrar(List<PublicacionOriginal> publicaciones, Set<String> keywords) {
         if (publicaciones == null || publicaciones.isEmpty()
                 || keywords == null || keywords.isEmpty()) {
             return new ArrayList<>();
@@ -19,8 +19,8 @@ public class FiltroRelevancia {
             return new ArrayList<>();
         }
 
-        List<PublicacionBruta> relevantes = new ArrayList<>();
-        for (PublicacionBruta pub : publicaciones) {
+        List<PublicacionOriginal> relevantes = new ArrayList<>();
+        for (PublicacionOriginal pub : publicaciones) {
             String texto = (pub.getTitulo() + " " + pub.getResumen()).toLowerCase();
             for (String token : tokens) {
                 if (texto.contains(token)) {

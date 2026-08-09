@@ -3,7 +3,7 @@ package explorador.fuentes.modelo;
 import java.time.LocalDate;
 import java.util.List;
 
-public class PublicacionBruta {
+public class PublicacionOriginal {
     private String idOrigen;
     private String fuente;
     private String titulo;

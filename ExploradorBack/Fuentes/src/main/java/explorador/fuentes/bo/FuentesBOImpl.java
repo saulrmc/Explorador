@@ -4,7 +4,7 @@ import explorador.data.ExploradorConfig;
 import explorador.fuentes.dao.CheckpointDAO;
 import explorador.fuentes.dao.CheckpointDAOImpl;
 import explorador.fuentes.modelo.CheckpointFuente;
-import explorador.fuentes.modelo.PublicacionBruta;
+import explorador.fuentes.modelo.PublicacionOriginal;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,21 +28,21 @@ public class FuentesBOImpl implements FuentesBO {
     }
 
     @Override
-    public List<PublicacionBruta> procesar(Set<String> arxivCategorias, Set<String> keywords) {
+    public List<PublicacionOriginal> procesar(Set<String> arxivCategorias, Set<String> keywords) {
         int maxResultados = Integer.parseInt(
                 ExploradorConfig.obtener("fuente.arxiv.consulta_max", "50"));
 
         CheckpointFuente checkpoint = checkpointDao.leer(adapter.nombre());
-        List<PublicacionBruta> recientes = adapter.consultarRecientes(arxivCategorias, maxResultados);
+        List<PublicacionOriginal> recientes = adapter.consultarRecientes(arxivCategorias, maxResultados);
 
-        List<PublicacionBruta> nuevas = new ArrayList<>();
-        for (PublicacionBruta pub : recientes) {
+        List<PublicacionOriginal> nuevas = new ArrayList<>();
+        for (PublicacionOriginal pub : recientes) {
             if (!checkpoint.getIdsVistos().contains(pub.getIdOrigen())) {
                 nuevas.add(pub);
             }
         }
 
-        for (PublicacionBruta pub : nuevas) {
+        for (PublicacionOriginal pub : nuevas) {
             checkpoint.getIdsVistos().add(pub.getIdOrigen());
         }
         checkpoint.setFechaUltimaConsulta(LocalDateTime.now());
