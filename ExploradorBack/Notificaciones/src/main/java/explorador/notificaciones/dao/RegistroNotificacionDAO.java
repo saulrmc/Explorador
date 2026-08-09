@@ -13,4 +13,6 @@ public interface RegistroNotificacionDAO {
     boolean existe(int publicacionId);
 
     void eliminarPorPublicacionIds(Set<Integer> publicacionIds);
+
+    void guardar();
 }

@@ -10,35 +10,78 @@ import java.util.Set;
 public class RegistroNotificacionDAOImpl implements RegistroNotificacionDAO {
 
     private static final String ARCHIVO = "enviadas";
+    private static final Object BLOQUEO = new Object();
+
+    private static List<RegistroNotificacion> registros;
+    private static boolean sucio;
+
     private final JsonPersistencia persistencia;
 
     public RegistroNotificacionDAOImpl() {
-        this.persistencia = new JsonPersistencia("Notificaciones");
+        this(new JsonPersistencia("Notificaciones"));
+    }
+
+    public RegistroNotificacionDAOImpl(JsonPersistencia persistencia) {
+        this.persistencia = persistencia;
     }
 
     @Override
     public List<RegistroNotificacion> leerTodos() {
-        return persistencia.leerLista(ARCHIVO, RegistroNotificacion.class);
+        synchronized (BLOQUEO) {
+            cargar();
+            return new ArrayList<>(registros);
+        }
     }
 
     @Override
     public void agregar(RegistroNotificacion registro) {
-        List<RegistroNotificacion> registros = new ArrayList<>(leerTodos());
-        registros.add(registro);
-        persistencia.escribir(ARCHIVO, registros);
+        synchronized (BLOQUEO) {
+            cargar();
+            registros.add(registro);
+            sucio = true;
+        }
     }
 
     @Override
     public boolean existe(int publicacionId) {
-        return leerTodos().stream()
-                .anyMatch(registro -> registro.getPublicacionId() == publicacionId);
+        synchronized (BLOQUEO) {
+            cargar();
+            return registros.stream()
+                    .anyMatch(registro -> registro.getPublicacionId() == publicacionId);
+        }
     }
 
     @Override
     public void eliminarPorPublicacionIds(Set<Integer> publicacionIds) {
-        List<RegistroNotificacion> restantes = leerTodos().stream()
-                .filter(registro -> !publicacionIds.contains(registro.getPublicacionId()))
-                .toList();
-        persistencia.escribir(ARCHIVO, restantes);
+        synchronized (BLOQUEO) {
+            cargar();
+            registros.removeIf(registro -> publicacionIds.contains(registro.getPublicacionId()));
+            sucio = true;
+        }
+    }
+
+    @Override
+    public void guardar() {
+        synchronized (BLOQUEO) {
+            cargar();
+            if (!sucio) {
+                return;
+            }
+            persistencia.escribir(ARCHIVO, registros);
+            sucio = false;
+        }
+    }
+
+    private void cargar() {
+        if (registros == null) {
+            registros = new ArrayList<>(persistencia.leerLista(ARCHIVO, RegistroNotificacion.class));
+        }
+    }
+
+    public static void reiniciar() {
+        synchronized (BLOQUEO) {
+            registros = null;
+            sucio = false;
+        }
     }
 }
