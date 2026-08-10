@@ -39,11 +39,13 @@ public class HistorialBOImpl implements HistorialBO {
 
         registros.add(registro);
         historialDao.reemplazarTodos(registros);
+        historialDao.guardar();
     }
 
     @Override
     public void limpiar() {
         historialDao.reemplazarTodos(new java.util.ArrayList<>());
+        historialDao.guardar();
     }
 
     @Override
@@ -52,5 +54,6 @@ public class HistorialBOImpl implements HistorialBO {
                 .filter(registro -> !publicacionIds.contains(registro.getPublicacionId()))
                 .toList();
         historialDao.reemplazarTodos(restantes);
+        historialDao.guardar();
     }
 }

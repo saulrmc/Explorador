@@ -32,6 +32,7 @@ public class AreaInteresBOImpl implements AreaInteresBO {
     public AreaInteres crear(AreaInteres area) {
         validarArea(area);
         areaDao.crear(area);
+        areaDao.guardar();
         return area;
     }
 
@@ -42,6 +43,7 @@ public class AreaInteresBOImpl implements AreaInteresBO {
         if (!areaDao.actualizar(area)) {
             throw new IllegalStateException("No se pudo actualizar el area con id: " + area.getId());
         }
+        areaDao.guardar();
         return area;
     }
 
@@ -51,6 +53,7 @@ public class AreaInteresBOImpl implements AreaInteresBO {
         if (!areaDao.eliminar(id)) {
             throw new IllegalStateException("No se pudo eliminar el area con id: " + id);
         }
+        areaDao.guardar();
     }
 
     @Override

@@ -3,6 +3,8 @@ package explorador.usuario.modelo;
 import java.util.List;
 
 public enum CategoriaArea {
+    //Por ahora está hardcodeado y totalmente acoplado a Arxiv.
+    // TODO: Cada publicación, independientemente de su fuente, debe clasificarse en una categoria predefinida
     COMPUTACION("Computacion", List.of("cs.AI", "cs.LG", "cs.CL", "cs.CV", "cs.SE", "cs.PL")),
     MATEMATICAS("Matematicas", List.of("math.NT", "math.NA", "math.AP", "math.CO", "math.OC")),
     FISICA("Fisica", List.of("physics.class-ph", "physics.comp-ph", "physics.flu-dyn")),

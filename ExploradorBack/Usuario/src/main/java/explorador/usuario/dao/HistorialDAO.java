@@ -8,4 +8,6 @@ public interface HistorialDAO {
     List<PublicacionConsultada> leerTodos();
 
     void reemplazarTodos(List<PublicacionConsultada> registros);
+
+    void guardar();
 }

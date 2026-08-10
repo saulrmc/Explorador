@@ -12,6 +12,9 @@ public class UsuarioDAOImpl implements UsuarioDAO {
         this.persistencia = new JsonPersistencia("Usuario");
     }
 
+    // A diferencia de otros DAOs del modulo, no se cachea el estado en memoria:
+    // al existir un unico usuario, releer el archivo en cada operacion no es un
+    // problema de rendimiento y mantiene simple la logica.
     @Override
     public Usuario leer() {
         return persistencia.leer(ARCHIVO, Usuario.class);

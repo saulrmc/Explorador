@@ -14,4 +14,6 @@ public interface AreaInteresDAO {
     AreaInteres leer(Integer id);
 
     List<AreaInteres> leerTodos();
+
+    void guardar();
 }

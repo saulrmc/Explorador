@@ -4,60 +4,129 @@ import explorador.data.JsonPersistencia;
 import explorador.usuario.modelo.AreaInteres;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class AreaInteresDAOImpl implements AreaInteresDAO {
 
     private static final String ARCHIVO = "areas";
+    private static final Object BLOQUEO = new Object();
+
+    private static List<AreaInteres> areas;
+    private static int ultimoId;
+    private static boolean sucio;
+
     private final JsonPersistencia persistencia;
 
     public AreaInteresDAOImpl() {
-        this.persistencia = new JsonPersistencia("Usuario");
+        this(new JsonPersistencia("Usuario"));
+    }
+
+    AreaInteresDAOImpl(JsonPersistencia persistencia) {
+        this.persistencia = persistencia;
     }
 
     @Override
     public Integer crear(AreaInteres modelo) {
-        List<AreaInteres> areas = leerTodos();
-        int id = areas.stream().mapToInt(AreaInteres::getId).max().orElse(0) + 1;
-        modelo.setId(id);
-        areas.add(modelo);
-        persistencia.escribir(ARCHIVO, areas);
-        return id;
+        synchronized (BLOQUEO) {
+            cargar();
+            ultimoId++;
+            modelo.setId(ultimoId);
+            areas.add(modelo);
+            sucio = true;
+            return ultimoId;
+        }
     }
 
     @Override
     public boolean actualizar(AreaInteres modelo) {
-        List<AreaInteres> areas = leerTodos();
-        for (int i = 0; i < areas.size(); i++) {
-            if (areas.get(i).getId() == modelo.getId()) {
-                areas.set(i, modelo);
-                persistencia.escribir(ARCHIVO, areas);
-                return true;
+        synchronized (BLOQUEO) {
+            cargar();
+            int indice = indiceDe(modelo.getId());
+            if (indice < 0) {
+                return false;
             }
+            areas.set(indice, modelo);
+            sucio = true;
+            return true;
         }
-        return false;
     }
 
     @Override
     public boolean eliminar(Integer id) {
-        List<AreaInteres> areas = leerTodos();
-        boolean eliminado = areas.removeIf(area -> area.getId() == id);
-        if (eliminado) {
-            persistencia.escribir(ARCHIVO, areas);
+        synchronized (BLOQUEO) {
+            cargar();
+            int indice = indiceDe(id);
+            if (indice < 0) {
+                return false;
+            }
+            areas.remove(indice);
+            sucio = true;
+            return true;
         }
-        return eliminado;
     }
 
     @Override
     public AreaInteres leer(Integer id) {
-        return leerTodos().stream()
-                .filter(area -> area.getId() == id)
-                .findFirst()
-                .orElse(null);
+        synchronized (BLOQUEO) {
+            cargar();
+            int indice = indiceDe(id);
+            return indice < 0 ? null : areas.get(indice);
+        }
     }
 
     @Override
     public List<AreaInteres> leerTodos() {
-        return persistencia.leerLista(ARCHIVO, AreaInteres.class);
+        synchronized (BLOQUEO) {
+            cargar();
+            return new ArrayList<>(areas);
+        }
+    }
+
+    @Override
+    public void guardar() {
+        synchronized (BLOQUEO) {
+            cargar();
+            if (!sucio) {
+                return;
+            }
+            persistencia.escribir(ARCHIVO, areas);
+            sucio = false;
+        }
+    }
+
+    private void cargar() {
+        if (areas == null) {
+            areas = new ArrayList<>(persistencia.leerLista(ARCHIVO, AreaInteres.class));
+            areas.sort(Comparator.comparingInt(AreaInteres::getId));
+            ultimoId = areas.stream()
+                    .mapToInt(AreaInteres::getId)
+                    .max().orElse(0);
+        }
+    }
+
+    private int indiceDe(int id) {
+        int bajo = 0;
+        int alto = areas.size() - 1;
+        while (bajo <= alto) {
+            int medio = (bajo + alto) >>> 1;
+            int idMedio = areas.get(medio).getId();
+            if (idMedio < id) {
+                bajo = medio + 1;
+            } else if (idMedio > id) {
+                alto = medio - 1;
+            } else {
+                return medio;
+            }
+        }
+        return -(bajo + 1);
+    }
+
+    static void reiniciar() {
+        synchronized (BLOQUEO) {
+            areas = null;
+            ultimoId = 0;
+            sucio = false;
+        }
     }
 }
