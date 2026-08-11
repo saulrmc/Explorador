@@ -5,7 +5,6 @@ import explorador.publicaciones.modelo.Publicacion;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,18 +12,18 @@ import java.util.Set;
 public class RankerDeterminista implements Ranker {
 
     @Override
-    public List<Publicacion> ordenar(List<Publicacion> publicaciones, Set<String> keywords) {
+    public List<Publicacion> ordenar(List<Publicacion> publicaciones, Set<String> categorias) {
         List<Publicacion> ordenadas = new ArrayList<>(publicaciones);
         for (Publicacion publicacion : ordenadas) {
-            publicacion.setScore(calcular(publicacion, keywords));
+            publicacion.setScore(calcular(publicacion, categorias));
         }
         ordenadas.sort((a, b) -> Double.compare(b.getScore(), a.getScore()));
         return ordenadas;
     }
 
-    private double calcular(Publicacion publicacion, Set<String> keywords) {
+    private double calcular(Publicacion publicacion, Set<String> categorias) {
         double recencia = recencia(fechaPublicacion(publicacion));
-        double coincidencia = coincidencia(publicacion, keywords);
+        double coincidencia = coincidencia(publicacion, categorias);
         return 0.5 * recencia + 0.4 * coincidencia + 0.1 * confianza(publicacion);
     }
 
@@ -44,37 +43,23 @@ public class RankerDeterminista implements Ranker {
         return 1.0 / (1.0 + dias);
     }
 
-    private double coincidencia(Publicacion publicacion, Set<String> keywords) {
-        if (keywords == null || keywords.isEmpty()) {
+    private double coincidencia(Publicacion publicacion, Set<String> categorias) {
+        if (categorias == null || categorias.isEmpty()) {
             return 0.0;
         }
-        Set<String> tokensTexto = tokensTexto(publicacion);
-        int coincidencias = 0;
-        int total = 0;
-        for (String keyword : keywords) {
-            for (String token : keyword.toLowerCase().split("\\s+")) {
-                if (token.length() >= 3) {
-                    total++;
-                    if (tokensTexto.contains(token)) {
-                        coincidencias++;
-                    }
-                }
-            }
+        Set<String> etiquetas = etiquetas(publicacion);
+        if (etiquetas.isEmpty()) {
+            return 0.0;
         }
-        return total == 0 ? 0.0 : (double) coincidencias / total;
+        long coincidencias = etiquetas.stream().filter(categorias::contains).count();
+        return (double) coincidencias / etiquetas.size();
     }
 
-    private Set<String> tokensTexto(Publicacion publicacion) {
-        String texto = publicacion.getTitulo() + " " + publicacion.getDescripcion()
-                + " " + String.join(" ", etiquetasO(publicacion));
-        return new HashSet<>(Arrays.asList(texto.toLowerCase().split("[^a-z0-9]+")));
-    }
-
-    private List<String> etiquetasO(Publicacion publicacion) {
+    private Set<String> etiquetas(Publicacion publicacion) {
         if (publicacion.getOriginal() == null) {
-            return List.of();
+            return Set.of();
         }
         List<String> etiquetas = publicacion.getOriginal().getEtiquetas();
-        return etiquetas == null ? List.of() : etiquetas;
+        return etiquetas == null ? Set.of() : new HashSet<>(etiquetas);
     }
 }

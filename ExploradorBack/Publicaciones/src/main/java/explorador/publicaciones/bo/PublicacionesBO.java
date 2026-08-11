@@ -10,9 +10,9 @@ import java.util.Set;
 public interface PublicacionesBO {
     List<Publicacion> registrarBrutas(List<PublicacionOriginal> originales);
 
-    List<Publicacion> listarLimitadas(Set<String> keywords, int limite);
+    List<Publicacion> listarLimitadas(Set<String> categorias, int limite);
 
-    List<Publicacion> rankear(List<Publicacion> publicaciones, Set<String> keywords);
+    List<Publicacion> rankear(List<Publicacion> publicaciones, Set<String> categorias);
 
     List<Publicacion> listar();
 

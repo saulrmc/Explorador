@@ -15,13 +15,13 @@ import explorador.notificaciones.bo.NotificadorBOImpl;
 import explorador.publicaciones.bo.PublicacionesBO;
 import explorador.publicaciones.bo.PublicacionesBOImpl;
 import explorador.publicaciones.modelo.Publicacion;
-import explorador.usuario.bo.AreaInteresBO;
-import explorador.usuario.bo.AreaInteresBOImpl;
+import explorador.usuario.bo.CategoriaAreaBO;
+import explorador.usuario.bo.CategoriaAreaBOImpl;
 import explorador.usuario.bo.HistorialBO;
 import explorador.usuario.bo.HistorialBOImpl;
 import explorador.usuario.bo.UsuarioBO;
 import explorador.usuario.bo.UsuarioBOImpl;
-import explorador.usuario.modelo.AreaInteres;
+import explorador.usuario.modelo.CategoriaArea;
 import explorador.usuario.modelo.Usuario;
 
 import java.util.HashSet;
@@ -41,7 +41,7 @@ public class AppStartupListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         UsuarioBO usuarioBO = new UsuarioBOImpl();
-        AreaInteresBO areaBO = new AreaInteresBOImpl();
+        CategoriaAreaBO areaBO = new CategoriaAreaBOImpl();
         FuentesBO fuentesBO = new FuentesBOImpl();
         PublicacionesBO publicacionesBO = new PublicacionesBOImpl();
         NotificadorBO notificadorBO = new NotificadorBOImpl();
@@ -72,21 +72,18 @@ public class AppStartupListener implements ServletContextListener {
         }
     }
 
-    private void ejecutarCiclo(UsuarioBO usuarioBO, AreaInteresBO areaBO, FuentesBO fuentesBO,
+    private void ejecutarCiclo(UsuarioBO usuarioBO, CategoriaAreaBO areaBO, FuentesBO fuentesBO,
                                PublicacionesBO publicacionesBO, NotificadorBO notificadorBO) {
         try {
-            List<AreaInteres> areas = areaBO.listar();
+            List<CategoriaArea> areas = areaBO.listar();
             if (areas.isEmpty()) {
                 System.out.println("Sin areas de interes configuradas, se omite la consulta de fuentes.");
                 return;
             }
 
             Set<String> categorias = categoriasArxiv(areas);
-            Set<String> keywords = areas.stream()
-                    .map(AreaInteres::getNombre)
-                    .collect(Collectors.toSet());
 
-            List<PublicacionOriginal> originales = fuentesBO.procesar(categorias, keywords);
+            List<PublicacionOriginal> originales = fuentesBO.procesar(categorias);
             List<Publicacion> nuevas = publicacionesBO.registrarBrutas(originales);
             System.out.println("Ciclo de fuentes: " + nuevas.size() + " publicaciones nuevas.");
 
@@ -94,7 +91,7 @@ public class AppStartupListener implements ServletContextListener {
                 return;
             }
 
-            List<Publicacion> mejores = publicacionesBO.rankear(nuevas, keywords);
+            List<Publicacion> mejores = publicacionesBO.rankear(nuevas, categorias);
             int max = Integer.parseInt(ExploradorConfig.obtener("notificaciones.max_por_batch", "5"));
             List<Publicacion> top = mejores.stream().limit(max).toList();
 
@@ -127,12 +124,10 @@ public class AppStartupListener implements ServletContextListener {
         }
     }
 
-    private Set<String> categoriasArxiv(List<AreaInteres> areas) {
+    private Set<String> categoriasArxiv(List<CategoriaArea> areas) {
         Set<String> categorias = new HashSet<>();
-        for (AreaInteres area : areas) {
-            if (area.getCategoria() != null) {
-                categorias.addAll(area.getCategoria().getArxiv());
-            }
+        for (CategoriaArea area : areas) {
+            categorias.addAll(area.getArxiv());
         }
         return categorias;
     }

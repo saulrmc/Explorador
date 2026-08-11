@@ -13,16 +13,16 @@ import explorador.publicaciones.bo.PublicacionesBO;
 import explorador.publicaciones.bo.PublicacionesBOImpl;
 import explorador.publicaciones.conceptos.DefinicionConcepto;
 import explorador.publicaciones.modelo.Publicacion;
-import explorador.usuario.bo.AreaInteresBO;
-import explorador.usuario.bo.AreaInteresBOImpl;
+import explorador.usuario.bo.CategoriaAreaBO;
+import explorador.usuario.bo.CategoriaAreaBOImpl;
 import explorador.usuario.bo.HistorialBO;
 import explorador.usuario.bo.HistorialBOImpl;
-import explorador.usuario.modelo.AreaInteres;
+import explorador.usuario.modelo.CategoriaArea;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Path("/v1/publicaciones")
 @Produces(MediaType.APPLICATION_JSON)
@@ -30,12 +30,12 @@ import java.util.stream.Collectors;
 public class PublicacionesResource {
 
     private final PublicacionesBO publicacionesBO;
-    private final AreaInteresBO areaBO;
+    private final CategoriaAreaBO areaBO;
     private final HistorialBO historialBO;
 
     public PublicacionesResource() {
         this.publicacionesBO = new PublicacionesBOImpl();
-        this.areaBO = new AreaInteresBOImpl();
+        this.areaBO = new CategoriaAreaBOImpl();
         this.historialBO = new HistorialBOImpl();
     }
 
@@ -43,7 +43,7 @@ public class PublicacionesResource {
     public Response listarLimitadas(@QueryParam("limite") Integer limite) {
         int max = limite != null ? limite
                 : Integer.parseInt(ExploradorConfig.obtener("explorador.limite_publicaciones", "10"));
-        return Response.ok(publicacionesBO.listarLimitadas(obtenerKeywords(), max)).build();
+        return Response.ok(publicacionesBO.listarLimitadas(obtenerCategorias(), max)).build();
     }
 
     @GET
@@ -106,9 +106,11 @@ public class PublicacionesResource {
         }
     }
 
-    private Set<String> obtenerKeywords() {
-        return areaBO.listar().stream()
-                .map(AreaInteres::getNombre)
-                .collect(Collectors.toSet());
+    private Set<String> obtenerCategorias() {
+        Set<String> categorias = new HashSet<>();
+        for (CategoriaArea area : areaBO.listar()) {
+            categorias.addAll(area.getArxiv());
+        }
+        return categorias;
     }
 }

@@ -10,13 +10,12 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import explorador.usuario.bo.AreaInteresBO;
-import explorador.usuario.bo.AreaInteresBOImpl;
+import explorador.usuario.bo.CategoriaAreaBO;
+import explorador.usuario.bo.CategoriaAreaBOImpl;
 import explorador.usuario.bo.HistorialBO;
 import explorador.usuario.bo.HistorialBOImpl;
 import explorador.usuario.bo.UsuarioBO;
 import explorador.usuario.bo.UsuarioBOImpl;
-import explorador.usuario.modelo.AreaInteres;
 import explorador.usuario.modelo.CategoriaArea;
 import explorador.usuario.modelo.PublicacionConsultada;
 import explorador.usuario.modelo.Usuario;
@@ -30,12 +29,12 @@ import java.util.Map;
 public class UsuarioResource {
 
     private final UsuarioBO usuarioBO;
-    private final AreaInteresBO areaBO;
+    private final CategoriaAreaBO areaBO;
     private final HistorialBO historialBO;
 
     public UsuarioResource() {
         this.usuarioBO = new UsuarioBOImpl();
-        this.areaBO = new AreaInteresBOImpl();
+        this.areaBO = new CategoriaAreaBOImpl();
         this.historialBO = new HistorialBOImpl();
     }
 
@@ -64,7 +63,7 @@ public class UsuarioResource {
 
     @GET
     @Path("/areas")
-    public List<AreaInteres> listarAreas() {
+    public List<CategoriaArea> listarAreas() {
         return areaBO.listar();
     }
 
@@ -76,29 +75,11 @@ public class UsuarioResource {
 
     @POST
     @Path("/areas")
-    public Response crearArea(AreaInteres area) {
+    public Response agregarArea(CategoriaArea categoria) {
         try {
-            AreaInteres creada = areaBO.crear(area);
-            return Response.status(Response.Status.CREATED).entity(creada).build();
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("error", e.getMessage()))
-                    .build();
-        }
-    }
-
-    @PUT
-    @Path("/areas/{id}")
-    public Response actualizarArea(@PathParam("id") int id, AreaInteres area) {
-        area.setId(id);
-        try {
-            if (areaBO.obtener(id) == null) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(Map.of("error", "Area de interes no encontrada"))
-                        .build();
-            }
-            return Response.ok(areaBO.actualizar(area)).build();
-        } catch (IllegalArgumentException | IllegalStateException e) {
+            areaBO.agregar(categoria);
+            return Response.status(Response.Status.CREATED).entity(categoria).build();
+        } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("error", e.getMessage()))
                     .build();
@@ -106,12 +87,16 @@ public class UsuarioResource {
     }
 
     @DELETE
-    @Path("/areas/{id}")
-    public Response eliminarArea(@PathParam("id") int id) {
+    @Path("/areas/{categoria}")
+    public Response eliminarArea(@PathParam("categoria") String categoria) {
         try {
-            areaBO.eliminar(id);
+            areaBO.eliminar(CategoriaArea.valueOf(categoria));
             return Response.noContent().build();
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "Categoria invalida: " + categoria))
+                    .build();
+        } catch (IllegalStateException e) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(Map.of("error", e.getMessage()))
                     .build();

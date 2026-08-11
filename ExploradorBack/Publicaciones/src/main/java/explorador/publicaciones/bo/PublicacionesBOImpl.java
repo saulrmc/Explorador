@@ -69,14 +69,14 @@ public class PublicacionesBOImpl implements PublicacionesBO {
     }
 
     @Override
-    public List<Publicacion> listarLimitadas(Set<String> keywords, int limite) {
-        List<Publicacion> ordenadas = ranker.ordenar(publicacionDao.leerTodos(), keywords);
+    public List<Publicacion> listarLimitadas(Set<String> categorias, int limite) {
+        List<Publicacion> ordenadas = ranker.ordenar(publicacionDao.leerTodos(), categorias);
         return ordenadas.stream().limit(limite).toList();
     }
 
     @Override
-    public List<Publicacion> rankear(List<Publicacion> publicaciones, Set<String> keywords) {
-        return ranker.ordenar(publicaciones, keywords);
+    public List<Publicacion> rankear(List<Publicacion> publicaciones, Set<String> categorias) {
+        return ranker.ordenar(publicaciones, categorias);
     }
 
     @Override

@@ -15,20 +15,18 @@ public class FuentesBOImpl implements FuentesBO {
 
     private final FuenteAdapter adapter;
     private final CheckpointDAO checkpointDao;
-    private final FiltroRelevancia filtro;
 
     public FuentesBOImpl() {
-        this(new ArxivAdapter(), new CheckpointDAOImpl(), new FiltroRelevancia());
+        this(new ArxivAdapter(), new CheckpointDAOImpl());
     }
 
-    public FuentesBOImpl(FuenteAdapter adapter, CheckpointDAO checkpointDao, FiltroRelevancia filtro) {
+    public FuentesBOImpl(FuenteAdapter adapter, CheckpointDAO checkpointDao) {
         this.adapter = adapter;
         this.checkpointDao = checkpointDao;
-        this.filtro = filtro;
     }
 
     @Override
-    public List<PublicacionOriginal> procesar(Set<String> arxivCategorias, Set<String> keywords) {
+    public List<PublicacionOriginal> procesar(Set<String> arxivCategorias) {
         int maxResultados = Integer.parseInt(
                 ExploradorConfig.obtener("fuente.arxiv.consulta_max", "50"));
 
@@ -48,6 +46,6 @@ public class FuentesBOImpl implements FuentesBO {
         checkpoint.setFechaUltimaConsulta(LocalDateTime.now());
         checkpointDao.escribir(checkpoint);
 
-        return filtro.filtrar(nuevas, keywords);
+        return nuevas;
     }
 }

@@ -6,5 +6,5 @@ import java.util.List;
 import java.util.Set;
 
 public interface Ranker {
-    List<Publicacion> ordenar(List<Publicacion> publicaciones, Set<String> keywords);
+    List<Publicacion> ordenar(List<Publicacion> publicaciones, Set<String> categorias);
 }
