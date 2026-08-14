@@ -9,54 +9,75 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 class ConceptoExtractorBasicoTest {
 
-    private final ConceptoExtractorBasico extractor = new ConceptoExtractorBasico();
+    private final ConceptoExtractorBasico extractor = new ConceptoExtractorBasico(4, 50);
 
     @Test
-    void extraePalabrasFrecuentesOrdenadasPorFrecuencia() {
-        String resumen = "neural networks neural network learning neural models";
+    void extraeTerminosMultipalabraRelevantes() {
+        String resumen = "deep learning models for neural networks and graph learning";
 
-        List<String> conceptos = extractor.extraer(resumen);
+        List<String> candidatos = extractor.extraerCandidatos("", resumen);
 
-        assertEquals("neural", conceptos.get(0));
-        assertTrue(conceptos.contains("networks"));
-        assertTrue(conceptos.contains("learning"));
+        assertTrue(candidatos.contains("deep learning"));
+        assertTrue(candidatos.contains("neural networks"));
+        assertTrue(candidatos.contains("graph learning"));
     }
 
     @Test
-    void limitaAMaximoOchoConceptos() {
-        StringBuilder resumen = new StringBuilder();
-        for (int i = 0; i < 20; i++) {
-            resumen.append("termino").append(i).append(" ");
-        }
+    void noGeneraTerminosQueAtraviesanStopwords() {
+        String resumen = "deep learning for neural networks";
 
-        List<String> conceptos = extractor.extraer(resumen.toString());
+        List<String> candidatos = extractor.extraerCandidatos("", resumen);
 
-        assertEquals(8, conceptos.size());
+        assertFalse(candidatos.contains("learning for"));
+        assertFalse(candidatos.contains("for neural"));
     }
 
     @Test
     void ignoraStopwordsYPalabrasCortas() {
-        String resumen = "the of and with cat science";
+        String resumen = "the of and with cat science graph";
 
-        List<String> conceptos = extractor.extraer(resumen);
+        List<String> candidatos = extractor.extraerCandidatos("", resumen);
 
-        assertFalse(conceptos.contains("the"));
-        assertFalse(conceptos.contains("cat"));
-        assertTrue(conceptos.contains("science"));
+        assertFalse(candidatos.contains("the"));
+        assertFalse(candidatos.contains("cat"));
+        assertTrue(candidatos.contains("science"));
     }
 
     @Test
-    void resumenVacioProduceListaVacia() {
-        assertTrue(extractor.extraer(null).isEmpty());
-        assertTrue(extractor.extraer("   ").isEmpty());
+    void ponderaLosTerminosDelTitulo() {
+        String titulo = "reinforcement learning";
+        String resumen = "we study a problem about models and data and systems";
+
+        List<String> candidatos = extractor.extraerCandidatos(titulo, resumen);
+
+        assertEquals("reinforcement learning", candidatos.get(0));
+    }
+
+    @Test
+    void respetaElLimiteDeCandidatos() {
+        ConceptoExtractorBasico conLimite = new ConceptoExtractorBasico(4, 10);
+        StringBuilder resumen = new StringBuilder();
+        for (int i = 0; i < 40; i++) {
+            resumen.append("termino").append(i).append(" ");
+        }
+
+        List<String> candidatos = conLimite.extraerCandidatos("", resumen.toString());
+
+        assertEquals(10, candidatos.size());
+    }
+
+    @Test
+    void textoNuloOVacioProduceListaVacia() {
+        assertTrue(extractor.extraerCandidatos(null, null).isEmpty());
+        assertTrue(extractor.extraerCandidatos("", "   ").isEmpty());
     }
 
     @Test
     void esDeterministaAnteEmpates() {
-        String resumen = "alpha beta gamma delta";
+        String resumen = "alpha beta gamma delta epsilon zeta eta theta";
 
-        List<String> conceptos = extractor.extraer(resumen);
+        List<String> candidatos = extractor.extraerCandidatos("", resumen);
 
-        assertEquals(conceptos, extractor.extraer(resumen));
+        assertEquals(candidatos, extractor.extraerCandidatos("", resumen));
     }
 }

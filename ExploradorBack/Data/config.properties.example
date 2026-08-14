@@ -19,6 +19,11 @@ explorador.limite_publicaciones=10
 # Notificaciones: maximo de publicaciones por ciclo (RF01)
 notificaciones.max_por_batch=5
 
-# Definiciones de conceptos desde Wikipedia (RF12)
-conceptos.wikipedia.idioma=es
+# Conceptos (RF11) y definiciones (RF12) desde Wikipedia
+conceptos.wikipedia.idioma_definicion=es
+conceptos.wikipedia.idioma_fallback=en
+conceptos.wikipedia.idioma_validacion=en
 conceptos.wikipedia.timeout_ms=5000
+conceptos.wikipedia.min_longitud=4
+conceptos.wikipedia.max_candidatos=50
+conceptos.wikipedia.max_conceptos=8

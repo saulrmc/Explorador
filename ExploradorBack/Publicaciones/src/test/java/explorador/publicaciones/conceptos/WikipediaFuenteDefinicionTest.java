@@ -35,7 +35,7 @@ class WikipediaFuenteDefinicionTest {
     void construirUrlCodificaElConcepto() {
         WikipediaFuenteDefinicion fuente = nuevaFuente("es", baseUrl);
 
-        assertEquals(baseUrl + "redes%20neuronales", fuente.construirUrl("redes neuronales"));
+        assertEquals(baseUrl + "redes%20neuronales", fuente.construirUrl("es", "redes neuronales"));
     }
 
     @Test
@@ -92,6 +92,28 @@ class WikipediaFuenteDefinicionTest {
     }
 
     @Test
+    void siNoHayDefinicionEnElIdiomaPrincipalUsaElFallback() throws IOException {
+        int[] llamadas = {0};
+        servidor.createContext("/summary/missing", intercambio -> {
+            if (llamadas[0]++ == 0) {
+                byte[] respuesta = "{}".getBytes();
+                intercambio.sendResponseHeaders(404, respuesta.length);
+            } else {
+                String jsonEn = "{\"title\":\"Missing\",\"extract\":\"En ingles existe.\"}";
+                byte[] respuesta = jsonEn.getBytes();
+                intercambio.sendResponseHeaders(200, respuesta.length);
+                intercambio.getResponseBody().write(respuesta);
+            }
+            intercambio.close();
+        });
+
+        WikipediaFuenteDefinicion fuente = nuevaFuente("es", baseUrl);
+        DefinicionConcepto definicion = fuente.definir("missing");
+
+        assertEquals("En ingles existe.", definicion.getDefinicion());
+    }
+
+    @Test
     void cacheEvitaRepetirLaConsulta() throws IOException {
         int[] llamadas = {0};
         servidor.createContext("/summary/cacheado", intercambio -> {
@@ -119,7 +141,7 @@ class WikipediaFuenteDefinicionTest {
     }
 
     private WikipediaFuenteDefinicion nuevaFuente(String idioma, String urlBase) {
-        return new WikipediaFuenteDefinicion(idioma, 5000, urlBase,
+        return new WikipediaFuenteDefinicion(idioma, "en", 5000, urlBase,
                 HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build());
     }
 }

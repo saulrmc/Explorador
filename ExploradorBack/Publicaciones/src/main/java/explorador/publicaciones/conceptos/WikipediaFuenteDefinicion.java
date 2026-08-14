@@ -22,21 +22,26 @@ public class WikipediaFuenteDefinicion implements FuenteDefinicion {
 
     private final HttpClient cliente;
     private final ObjectMapper mapper;
-    private final String baseUrl;
+    private final String idiomaDefinicion;
+    private final String idiomaFallback;
+    private final String baseUrlOverride;
     private final int timeoutMs;
     private final Map<String, DefinicionConcepto> cache = new ConcurrentHashMap<>();
 
     public WikipediaFuenteDefinicion() {
-        this(ExploradorConfig.obtener("conceptos.wikipedia.idioma", "es"),
+        this(ExploradorConfig.obtener("conceptos.wikipedia.idioma_definicion", "es"),
+                ExploradorConfig.obtener("conceptos.wikipedia.idioma_fallback", "en"),
                 Integer.parseInt(ExploradorConfig.obtener("conceptos.wikipedia.timeout_ms", "5000")),
                 null,
                 HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build());
     }
 
-    WikipediaFuenteDefinicion(String idioma, int timeoutMs, String baseUrlOverride, HttpClient cliente) {
-        this.baseUrl = baseUrlOverride != null ? baseUrlOverride
-                : BASE_URL.formatted(idioma);
+    WikipediaFuenteDefinicion(String idiomaDefinicion, String idiomaFallback, int timeoutMs,
+                              String baseUrlOverride, HttpClient cliente) {
+        this.idiomaDefinicion = idiomaDefinicion;
+        this.idiomaFallback = idiomaFallback;
         this.timeoutMs = timeoutMs;
+        this.baseUrlOverride = baseUrlOverride;
         this.cliente = cliente;
         this.mapper = new ObjectMapper();
     }
@@ -51,26 +56,26 @@ public class WikipediaFuenteDefinicion implements FuenteDefinicion {
         if (enCache != null) {
             return enCache;
         }
-        DefinicionConcepto definicion = consultar(concepto);
+        DefinicionConcepto definicion = consultar(idiomaDefinicion, concepto);
+        if (definicion == null) {
+            definicion = consultar(idiomaFallback, concepto);
+        }
         if (definicion != null) {
             cache.put(clave, definicion);
         }
         return definicion;
     }
 
-    private DefinicionConcepto consultar(String concepto) {
+    private DefinicionConcepto consultar(String idioma, String concepto) {
         try {
-            HttpRequest peticion = HttpRequest.newBuilder(URI.create(construirUrl(concepto)))
+            HttpRequest peticion = HttpRequest.newBuilder(URI.create(construirUrl(idioma, concepto)))
                     .header("User-Agent", USER_AGENT)
                     .timeout(Duration.ofMillis(timeoutMs))
                     .GET()
                     .build();
             HttpResponse<String> respuesta = cliente.send(peticion, HttpResponse.BodyHandlers.ofString());
-            if (respuesta.statusCode() == 404) {
-                return null;
-            }
             if (respuesta.statusCode() != 200) {
-                throw new IllegalStateException("Wikipedia respondio con estado: " + respuesta.statusCode());
+                return null;
             }
             return parsear(respuesta.body(), concepto);
         } catch (IOException e) {
@@ -81,10 +86,11 @@ public class WikipediaFuenteDefinicion implements FuenteDefinicion {
         }
     }
 
-    String construirUrl(String concepto) {
+    String construirUrl(String idioma, String concepto) {
+        String base = baseUrlOverride != null ? baseUrlOverride : BASE_URL.formatted(idioma);
         String codificado = URLEncoder.encode(concepto.trim(), StandardCharsets.UTF_8)
                 .replace("+", "%20");
-        return baseUrl + codificado;
+        return base + codificado;
     }
 
     DefinicionConcepto parsear(String json, String concepto) {

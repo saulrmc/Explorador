@@ -4,11 +4,14 @@ import explorador.data.ExploradorConfig;
 import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.conceptos.ConceptoExtractor;
 import explorador.publicaciones.conceptos.ConceptoExtractorBasico;
+import explorador.publicaciones.conceptos.ConceptoResolver;
 import explorador.publicaciones.conceptos.DefinicionConcepto;
 import explorador.publicaciones.conceptos.FuenteDefinicion;
+import explorador.publicaciones.conceptos.WikipediaConceptoResolver;
 import explorador.publicaciones.conceptos.WikipediaFuenteDefinicion;
 import explorador.publicaciones.dao.PublicacionDAO;
 import explorador.publicaciones.dao.PublicacionDAOImpl;
+import explorador.publicaciones.modelo.Concepto;
 import explorador.publicaciones.modelo.Publicacion;
 
 import java.time.LocalDateTime;
@@ -17,6 +20,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PublicacionesBOImpl implements PublicacionesBO {
 
@@ -26,26 +30,29 @@ public class PublicacionesBOImpl implements PublicacionesBO {
     private final Formateador formateador;
     private final Ranker ranker;
     private final ConceptoExtractor extractor;
+    private final ConceptoResolver conceptoResolver;
     private final FuenteDefinicion fuenteDefinicion;
 
     public PublicacionesBOImpl() {
         this(new PublicacionDAOImpl(), new FormateadorTruncado(),
                 new RankerDeterminista(), new ConceptoExtractorBasico(),
-                new WikipediaFuenteDefinicion());
+                new WikipediaConceptoResolver(), new WikipediaFuenteDefinicion());
     }
 
     public PublicacionesBOImpl(PublicacionDAO publicacionDao, Formateador formateador,
                                Ranker ranker, ConceptoExtractor extractor) {
-        this(publicacionDao, formateador, ranker, extractor, new WikipediaFuenteDefinicion());
+        this(publicacionDao, formateador, ranker, extractor,
+                new WikipediaConceptoResolver(), new WikipediaFuenteDefinicion());
     }
 
     public PublicacionesBOImpl(PublicacionDAO publicacionDao, Formateador formateador,
                                Ranker ranker, ConceptoExtractor extractor,
-                               FuenteDefinicion fuenteDefinicion) {
+                               ConceptoResolver conceptoResolver, FuenteDefinicion fuenteDefinicion) {
         this.publicacionDao = publicacionDao;
         this.formateador = formateador;
         this.ranker = ranker;
         this.extractor = extractor;
+        this.conceptoResolver = conceptoResolver;
         this.fuenteDefinicion = fuenteDefinicion;
     }
 
@@ -58,7 +65,9 @@ public class PublicacionesBOImpl implements PublicacionesBO {
                     continue;
                 }
                 Publicacion publicacion = formateador.formatear(original);
-                publicacion.setConceptos(extractor.extraer(original.getResumen()));
+                List<String> candidatos = extractor.extraerCandidatos(
+                        original.getTitulo(), original.getResumen());
+                publicacion.setConceptos(limitarConceptos(conceptoResolver.resolver(candidatos)));
                 publicacionDao.crear(publicacion);
                 creadas.add(publicacion);
             }
@@ -66,6 +75,12 @@ public class PublicacionesBOImpl implements PublicacionesBO {
             publicacionDao.guardar();
         }
         return creadas;
+    }
+
+    private List<Concepto> limitarConceptos(List<Concepto> conceptos) {
+        int max = Integer.parseInt(
+                ExploradorConfig.obtener("conceptos.wikipedia.max_conceptos", "8"));
+        return conceptos.stream().limit(max).toList();
     }
 
     @Override
@@ -97,7 +112,7 @@ public class PublicacionesBOImpl implements PublicacionesBO {
         }
 
         Set<String> etiquetasBase = conjunto(etiquetas(base));
-        Set<String> conceptosBase = conjunto(base.getConceptos());
+        Set<String> conceptosBase = conjuntoConceptos(base);
 
         return publicacionDao.leerTodos().stream()
                 .filter(publicacion -> publicacion.getId() != id)
@@ -111,7 +126,7 @@ public class PublicacionesBOImpl implements PublicacionesBO {
 
     private long puntaje(Publicacion publicacion, Set<String> etiquetasBase, Set<String> conceptosBase) {
         Set<String> etiquetas = conjunto(etiquetas(publicacion));
-        Set<String> conceptos = conjunto(publicacion.getConceptos());
+        Set<String> conceptos = conjuntoConceptos(publicacion);
         long etiquetasComunes = etiquetasBase.stream().filter(etiquetas::contains).count();
         long conceptosComunes = conceptosBase.stream().filter(conceptos::contains).count();
         return PESO_ETIQUETA * etiquetasComunes + conceptosComunes;
@@ -127,6 +142,14 @@ public class PublicacionesBOImpl implements PublicacionesBO {
 
     private Set<String> conjunto(List<String> valores) {
         return valores == null ? Set.of() : new HashSet<>(valores);
+    }
+
+    private Set<String> conjuntoConceptos(Publicacion publicacion) {
+        List<Concepto> conceptos = publicacion.getConceptos();
+        if (conceptos == null) {
+            return Set.of();
+        }
+        return conceptos.stream().map(Concepto::getTermino).collect(Collectors.toSet());
     }
 
     private record Relacion(Publicacion publicacion, long puntaje) {

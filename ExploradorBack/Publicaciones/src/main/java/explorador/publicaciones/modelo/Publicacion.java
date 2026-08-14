@@ -9,7 +9,7 @@ public class Publicacion {
     private int id;
     private String titulo;
     private String descripcion;
-    private List<String> conceptos;
+    private List<Concepto> conceptos;
     private double score;
     private LocalDateTime fechaIngreso;
     private PublicacionOriginal original;
@@ -38,11 +38,11 @@ public class Publicacion {
         this.descripcion = descripcion;
     }
 
-    public List<String> getConceptos() {
+    public List<Concepto> getConceptos() {
         return conceptos;
     }
 
-    public void setConceptos(List<String> conceptos) {
+    public void setConceptos(List<Concepto> conceptos) {
         this.conceptos = conceptos;
     }
 
