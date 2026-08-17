@@ -1,6 +1,7 @@
-package explorador.publicaciones.conceptos;
+package explorador.publicaciones.conceptos.fuente;
 
 import com.sun.net.httpserver.HttpServer;
+import explorador.publicaciones.modelo.DefinicionConcepto;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

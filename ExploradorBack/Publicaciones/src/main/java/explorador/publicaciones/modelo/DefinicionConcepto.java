@@ -1,4 +1,4 @@
-package explorador.publicaciones.conceptos;
+package explorador.publicaciones.modelo;
 
 public class DefinicionConcepto {
     private String concepto;

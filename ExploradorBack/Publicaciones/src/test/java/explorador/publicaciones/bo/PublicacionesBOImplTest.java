@@ -2,8 +2,8 @@ package explorador.publicaciones.bo;
 
 import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.conceptos.ConceptoExtractorBasico;
-import explorador.publicaciones.conceptos.DefinicionConcepto;
 import explorador.publicaciones.conceptos.FuenteDefinicion;
+import explorador.publicaciones.modelo.DefinicionConcepto;
 import explorador.publicaciones.dao.PublicacionDAO;
 import explorador.publicaciones.modelo.Concepto;
 import explorador.publicaciones.modelo.Publicacion;

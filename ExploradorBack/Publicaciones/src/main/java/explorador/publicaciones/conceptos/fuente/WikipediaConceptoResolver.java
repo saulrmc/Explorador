@@ -1,8 +1,9 @@
-package explorador.publicaciones.conceptos;
+package explorador.publicaciones.conceptos.fuente;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import explorador.data.ExploradorConfig;
+import explorador.publicaciones.conceptos.ConceptoResolver;
 import explorador.publicaciones.modelo.Concepto;
 
 import java.io.IOException;

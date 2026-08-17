@@ -39,8 +39,8 @@ public class ConceptoExtractorBasico implements ConceptoExtractor {
     private final int maxCandidatos;
 
     public ConceptoExtractorBasico() {
-        this(Integer.parseInt(ExploradorConfig.obtener("conceptos.wikipedia.min_longitud", "4")),
-                Integer.parseInt(ExploradorConfig.obtener("conceptos.wikipedia.max_candidatos", "50")));
+        this(Integer.parseInt(ExploradorConfig.obtener("conceptos.min_longitud", "4")),
+                Integer.parseInt(ExploradorConfig.obtener("conceptos.max_candidatos", "50")));
     }
 
     public ConceptoExtractorBasico(int minLongitud, int maxCandidatos) {

@@ -5,10 +5,10 @@ import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.conceptos.ConceptoExtractor;
 import explorador.publicaciones.conceptos.ConceptoExtractorBasico;
 import explorador.publicaciones.conceptos.ConceptoResolver;
-import explorador.publicaciones.conceptos.DefinicionConcepto;
 import explorador.publicaciones.conceptos.FuenteDefinicion;
-import explorador.publicaciones.conceptos.WikipediaConceptoResolver;
-import explorador.publicaciones.conceptos.WikipediaFuenteDefinicion;
+import explorador.publicaciones.conceptos.fuente.WikipediaConceptoResolver;
+import explorador.publicaciones.conceptos.fuente.WikipediaFuenteDefinicion;
+import explorador.publicaciones.modelo.DefinicionConcepto;
 import explorador.publicaciones.dao.PublicacionDAO;
 import explorador.publicaciones.dao.PublicacionDAOImpl;
 import explorador.publicaciones.modelo.Concepto;
@@ -79,7 +79,7 @@ public class PublicacionesBOImpl implements PublicacionesBO {
 
     private List<Concepto> limitarConceptos(List<Concepto> conceptos) {
         int max = Integer.parseInt(
-                ExploradorConfig.obtener("conceptos.wikipedia.max_conceptos", "8"));
+                ExploradorConfig.obtener("conceptos.max_conceptos", "8"));
         return conceptos.stream().limit(max).toList();
     }
 

@@ -1,4 +1,4 @@
-package explorador.publicaciones.conceptos;
+package explorador.publicaciones.conceptos.fuente;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;

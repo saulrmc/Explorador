@@ -11,7 +11,7 @@ import jakarta.ws.rs.core.Response;
 import explorador.data.ExploradorConfig;
 import explorador.publicaciones.bo.PublicacionesBO;
 import explorador.publicaciones.bo.PublicacionesBOImpl;
-import explorador.publicaciones.conceptos.DefinicionConcepto;
+import explorador.publicaciones.modelo.DefinicionConcepto;
 import explorador.publicaciones.modelo.Publicacion;
 import explorador.usuario.bo.CategoriaAreaBO;
 import explorador.usuario.bo.CategoriaAreaBOImpl;
