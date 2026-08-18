@@ -89,7 +89,6 @@ public class ArxivAdapter implements FuenteAdapter {
                 pub.setUrl("https://arxiv.org/abs/" + id);
                 pub.setAutores(leerAutores(entrada));
                 pub.setEtiquetas(leerEtiquetas(entrada));
-                pub.setPalabrasClave(leerEtiquetas(entrada));
                 pub.setConfianza(0.5);
                 publicaciones.add(pub);
             }

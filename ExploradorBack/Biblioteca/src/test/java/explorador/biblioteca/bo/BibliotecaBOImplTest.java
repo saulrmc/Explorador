@@ -31,8 +31,8 @@ class BibliotecaBOImplTest {
 
     @Test
     void guardarAsignaIdSecuencialYComponeLaPublicacion() {
-        publicaciones.registrar(publicacion(1, List.of("cs.LG")));
-        publicaciones.registrar(publicacion(2, List.of("cs.AI")));
+        publicaciones.registrar(publicacion(1, List.of("neural networks")));
+        publicaciones.registrar(publicacion(2, List.of("machine learning")));
 
         EntradaBiblioteca primera = biblioteca.guardar(publicaciones.obtener(1));
         EntradaBiblioteca segunda = biblioteca.guardar(publicaciones.obtener(2));
@@ -46,7 +46,7 @@ class BibliotecaBOImplTest {
 
     @Test
     void guardarRechazaDuplicados() {
-        publicaciones.registrar(publicacion(1, List.of("cs.LG")));
+        publicaciones.registrar(publicacion(1, List.of("neural networks")));
         biblioteca.guardar(publicaciones.obtener(1));
 
         assertThrows(IllegalStateException.class,
@@ -56,12 +56,12 @@ class BibliotecaBOImplTest {
     @Test
     void guardarRechazaPublicacionSinIdValido() {
         assertThrows(IllegalArgumentException.class,
-                () -> biblioteca.guardar(publicacion(0, List.of("cs.LG"))));
+                () -> biblioteca.guardar(publicacion(0, List.of("neural networks"))));
     }
 
     @Test
     void obtenerDevuelveEntradaExistenteONull() {
-        publicaciones.registrar(publicacion(1, List.of("cs.LG")));
+        publicaciones.registrar(publicacion(1, List.of("neural networks")));
         EntradaBiblioteca guardada = biblioteca.guardar(publicaciones.obtener(1));
 
         assertEquals(guardada.getId(), biblioteca.obtener(guardada.getId()).getId());
@@ -70,8 +70,8 @@ class BibliotecaBOImplTest {
 
     @Test
     void listarGuardadasOrdenaPorFechaDescendente() {
-        Publicacion antigua = publicacion(1, List.of("cs.LG"));
-        Publicacion reciente = publicacion(2, List.of("cs.AI"));
+        Publicacion antigua = publicacion(1, List.of("neural networks"));
+        Publicacion reciente = publicacion(2, List.of("machine learning"));
         publicaciones.registrar(antigua);
         publicaciones.registrar(reciente);
 
@@ -88,8 +88,8 @@ class BibliotecaBOImplTest {
 
     @Test
     void eliminarQuitaLaGuardadaYLimpiaNodosHuérfanosDelGrafo() {
-        publicaciones.registrar(publicacion(1, List.of("k1", "k2")));
-        publicaciones.registrar(publicacion(2, List.of("k2", "k3")));
+        publicaciones.registrar(publicacion(1, List.of("neural networks", "deep learning")));
+        publicaciones.registrar(publicacion(2, List.of("deep learning", "transformers")));
         EntradaBiblioteca a = biblioteca.guardar(publicaciones.obtener(1));
         biblioteca.guardar(publicaciones.obtener(2));
 
@@ -111,8 +111,8 @@ class BibliotecaBOImplTest {
 
     @Test
     void listarPorTemaUsaElGrafoYNormaliza() {
-        publicaciones.registrar(publicacion(1, List.of("Neural Networks", "Álgebra")));
-        publicaciones.registrar(publicacion(2, List.of("Algebraic Topology")));
+        publicaciones.registrar(publicacion(1, List.of("neural networks", "algebraic topology")));
+        publicaciones.registrar(publicacion(2, List.of("algebraic geometry")));
         biblioteca.guardar(publicaciones.obtener(1));
         biblioteca.guardar(publicaciones.obtener(2));
 
@@ -212,7 +212,7 @@ class BibliotecaBOImplTest {
         }
 
         @Override
-        public explorador.publicaciones.conceptos.DefinicionConcepto definirConcepto(String concepto) {
+        public explorador.publicaciones.modelo.DefinicionConcepto definirConcepto(String concepto) {
             return null;
         }
     }

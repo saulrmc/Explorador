@@ -67,6 +67,7 @@ public class PublicacionesBOImpl implements PublicacionesBO {
                 Publicacion publicacion = formateador.formatear(original);
                 List<String> candidatos = extractor.extraerCandidatos(
                         original.getTitulo(), original.getResumen());
+                original.setPalabrasClave(candidatos);
                 publicacion.setConceptos(limitarConceptos(conceptoResolver.resolver(candidatos)));
                 publicacionDao.crear(publicacion);
                 creadas.add(publicacion);
