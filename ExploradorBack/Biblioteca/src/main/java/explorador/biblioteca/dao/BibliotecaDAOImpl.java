@@ -8,7 +8,6 @@ import java.util.List;
 
 public class BibliotecaDAOImpl implements BibliotecaDAO {
 
-    private static final String ARCHIVO_GRAFO = "grafo";
     private static final String ARCHIVO_GUARDADAS = "guardadas";
     private final JsonPersistencia persistencia;
 
@@ -17,22 +16,12 @@ public class BibliotecaDAOImpl implements BibliotecaDAO {
     }
 
     @Override
-    public GrafoTematica leerGrafo() {
-        return persistencia.leer(ARCHIVO_GRAFO, GrafoTematica.class, new GrafoTematica());
+    public GrafoTematica leerBiblioteca() {
+        return persistencia.leer(ARCHIVO_GUARDADAS, GrafoTematica.class, new GrafoTematica());
     }
 
     @Override
-    public void escribirGrafo(GrafoTematica grafo) {
-        persistencia.escribir(ARCHIVO_GRAFO, grafo);
-    }
-
-    @Override
-    public List<PublicacionGuardada> leerGuardadas() {
-        return persistencia.leerLista(ARCHIVO_GUARDADAS, PublicacionGuardada.class);
-    }
-
-    @Override
-    public void escribirGuardadas(List<PublicacionGuardada> guardadas) {
-        persistencia.escribir(ARCHIVO_GUARDADAS, guardadas);
+    public void escribirBiblioteca(PublicacionGuardada publicacionGuardada) {
+        persistencia.escribir(ARCHIVO_GUARDADAS, publicacionGuardada);
     }
 }

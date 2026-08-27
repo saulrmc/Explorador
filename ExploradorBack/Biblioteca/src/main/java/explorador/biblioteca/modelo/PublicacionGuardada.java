@@ -1,7 +1,7 @@
 package explorador.biblioteca.modelo;
 
 import java.time.LocalDateTime;
-
+//TODO: creo que esta clase va a cambiar de significado
 public class PublicacionGuardada {
     private int id;
     private int publicacionId;

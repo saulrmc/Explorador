@@ -6,11 +6,7 @@ import explorador.biblioteca.modelo.PublicacionGuardada;
 import java.util.List;
 
 public interface BibliotecaDAO {
-    GrafoTematica leerGrafo();
+    GrafoTematica leerBiblioteca();
 
-    void escribirGrafo(GrafoTematica grafo);
-
-    List<PublicacionGuardada> leerGuardadas();
-
-    void escribirGuardadas(List<PublicacionGuardada> guardadas);
+    void escribirBiblioteca(PublicacionGuardada publicacionGuardada);
 }
