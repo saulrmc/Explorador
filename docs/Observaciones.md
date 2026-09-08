@@ -8,3 +8,6 @@ La segunda es instanciar una clase procesada y asumir que como el procesamiento 
 
 ## 07-09-26
 - **Observación:** El mayor problema que veo en todo el sistema es que he tratado de apurarme demasiado en presentar una solución que todo mi razonamiento ha ido en esa dirección en lugar de enfocarme en el problema.
+
+## 08-09-26
+- **Observación:** Una alternativa potencialmente útil frente al problema podría ser el uso de IA para el procesamiento de información antes de llegar a un ser humano. Aunque un LLM es bastante útil para procesar cifras gigantescas de tokens, por ejemplo superar el millón de token en el caso de los modelos más recientes de OpenIA y Anthopic (token es aproximadamente 4 caracteres o 3 cuartos de palabra en inglés [https://help.openai.com/en/articles/4936856-understanding-and-counting-tokens]), también ha generado controversia dentro de la comunidad de Arxiv con lo que se ha llamado "survey paper DDoS attack" que ha inundado la plataforma de contenido vago y repetitivo, lo que baja la calidad de la investigación y perjudica a nuevos investigadores [https://arxiv.org/html/2510.09686v1]. Aunque esto último escapa de la problemática principal no veo conveniente agregar una capa más de IA a mucho contenido que ya ha sido generado con IA.
