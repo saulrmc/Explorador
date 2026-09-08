@@ -5,3 +5,6 @@ Sinceramente no encuentro mejor manera de anotar las correcciones que voy pensan
 - **Idea:** Estaba pensando en que el grafo podría tener su propia subcarpeta dentro de la Biblioteca, de modo que se separa las responsabilidades de ambas partes de manera visual pero también a nivel lógico. Para el caso de la PublicacionGuardada tenía pensado 2 alternativas: 
 La primera es darle otro significado, es decir que en lugar de que se almacene una publicación procesada mejor que almacene una publicación "cruda" como instancia. 
 La segunda es instanciar una clase procesada y asumir que como el procesamiento ocurre una sola vez, no habrá desfase con el contenido del cual se extrajo
+
+## 07-09-26
+- **Observación:** El mayor problema que veo en todo el sistema es que he tratado de apurarme demasiado en presentar una solución que todo mi razonamiento ha ido en esa dirección en lugar de enfocarme en el problema.
