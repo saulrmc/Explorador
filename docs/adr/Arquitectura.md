@@ -2,13 +2,13 @@
 
 ## Contexto
 
-El proyecto consiste en un explorador de contenido académico desarrollado por una sola persona. El software requiere tener tareas claramente definidas y repartidas entre sus componentes (RNF07). Existen restricciones clave:
-- Recursos limitados (RNF05): Desarrollo unipersonal y hardware estándar.
+El proyecto consiste en un explorador de contenido académico desarrollado por una sola persona. El software requiere tener tareas claramente definidas y repartidas entre sus componentes. Existen restricciones clave:
+- Recursos limitados: Desarrollo unipersonal y hardware estándar.
 
 
 ## Decisión
 
-Se optó por implementar un monolito modular con acoplamiento cliente-servidor
+Se optó por implementar un monolito modular.
 
 ## Justificación
 
