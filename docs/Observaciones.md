@@ -14,3 +14,11 @@ La segunda es instanciar una clase procesada y asumir que como el procesamiento 
 
 ## 20-09-26
 - **Observación:** Ahora que me he remplanteado el problema considero que los únicos archivos que merecen la pena quedarse son este, el problema y la carpeta de ADRs ya que es importante tener una justificación para lo que se desarrolla independientemente de lo grande o pequeño del proyecto. 
+
+## 21-09-26
+- **Observación:** He comparado lo que quedó de la solución anterior con los requisitos actuales y el problema no era la arquitectura en sí, eso del monolito modular sigue en pie. Lo que sobraba era la presentación: ExploradorRS y ExploradorFront. El resto de módulos (Data, Fuentes, Usuario, Publicaciones) encaja bastante con los RF de ahora, así que creo que lo más conveniente es reutilizarlo en lugar de empezar de cero.
+Además, me he quitado de encima la poda a los 7 días: ningún requisito la pide y si la quiero volver a meter, tendrá que ser con su justificación.
+- **Pendiente:** 
+  1. Cómo se disparará la sincronización diaria de ArXiv. La solución anterior sincronizaba al arrancar, eso es una opción, pero quiero pensarlo con calma en un ADR.
+  2. La categorización: el enum con los códigos de ArXiv está hardcodeado.
+  3. Estaba pensando en conservar el módulo de correos, pero no es una funcionalidad principal, así que lo decido cuando toque.

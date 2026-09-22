@@ -1,0 +1,20 @@
+# Ejemplo de configuracion del explorador.
+# Copia este archivo a src/main/resources/config.properties y completa los valores.
+# El archivo config.properties NO se versiona para evitar subir credenciales.
+
+# Correo SMTP para notificaciones (RF01/RNF01)
+correo.emisor=TU_CORREO@gmail.com
+correo.clave_aplicacion=TU_CLAVE_DE_APLICACION
+correo.smtp.host=smtp.gmail.com
+correo.smtp.puerto=587
+correo.smtp.tls=true
+
+# Consulta periodica de fuentes (RNF02)
+fuente.arxiv.intervalo_minutos=1
+fuente.arxiv.consulta_max=50
+
+# Presentacion limitada de publicaciones (RF01)
+explorador.limite_publicaciones=10
+
+# Notificaciones: maximo de publicaciones por ciclo (RNF01)
+notificaciones.max_por_batch=5
