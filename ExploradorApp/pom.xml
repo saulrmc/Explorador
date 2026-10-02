@@ -10,11 +10,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>Data</module>
         <module>Usuario</module>
         <module>Fuentes</module>
         <module>Publicaciones</module>
         <module>Notificaciones</module>
+        <module>DBManager</module>
     </modules>
 
     <properties>
