@@ -9,7 +9,7 @@ public class SQLiteDBManager {
     private static final String url = "jdbc:sqlite:BD.db";
     private Connection conexion;
 
-    static synchronized SQLiteDBManager getInstance() {
+    public static synchronized SQLiteDBManager getInstance() {
         if (instancia == null) {
             instancia = new SQLiteDBManager();
         }

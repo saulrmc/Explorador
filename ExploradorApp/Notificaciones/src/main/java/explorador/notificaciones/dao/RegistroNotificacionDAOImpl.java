@@ -1,6 +1,7 @@
 package explorador.notificaciones.dao;
 
 import explorador.data.JsonPersistencia;
+
 import explorador.notificaciones.modelo.RegistroNotificacion;
 
 import java.util.ArrayList;

@@ -1,6 +1,5 @@
 package explorador.fuentes.bo;
 
-import explorador.data.ExploradorConfig;
 import explorador.fuentes.dao.CheckpointDAO;
 import explorador.fuentes.dao.CheckpointDAOImpl;
 import explorador.fuentes.modelo.CheckpointFuente;
