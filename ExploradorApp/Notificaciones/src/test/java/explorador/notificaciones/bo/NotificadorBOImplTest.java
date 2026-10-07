@@ -1,7 +1,6 @@
 package explorador.notificaciones.bo;
 
 import explorador.data.JsonPersistencia;
-import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.notificaciones.dao.RegistroNotificacionDAOImpl;
 import explorador.publicaciones.modelo.Publicacion;
 import org.junit.jupiter.api.BeforeEach;

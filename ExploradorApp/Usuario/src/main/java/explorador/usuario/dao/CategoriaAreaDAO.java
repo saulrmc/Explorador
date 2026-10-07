@@ -1,15 +1,15 @@
 package explorador.usuario.dao;
 
-import explorador.usuario.modelo.CategoriaArea;
+import explorador.usuario.modelo.CategoriaAreaEnum;
 
 import java.util.List;
 
 public interface CategoriaAreaDAO {
-    List<CategoriaArea> leerTodos();
+    List<CategoriaAreaEnum> leerTodos();
 
-    boolean agregar(CategoriaArea categoria);
+    boolean agregar(CategoriaAreaEnum categoria);
 
-    boolean eliminar(CategoriaArea categoria);
+    boolean eliminar(CategoriaAreaEnum categoria);
 
     void guardar();
 }

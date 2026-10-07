@@ -1,9 +1,11 @@
 package explorador.fuentes.bo;
+import explorador.data.ExploradorConfig;
+
+import explorador.fuentes.modelo.PublicacionOriginal;
 
 import explorador.fuentes.dao.CheckpointDAO;
 import explorador.fuentes.dao.CheckpointDAOImpl;
 import explorador.fuentes.modelo.CheckpointFuente;
-import explorador.fuentes.modelo.PublicacionOriginal;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

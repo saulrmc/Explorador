@@ -1,3 +1,4 @@
+
 package explorador.fuentes.modelo;
 
 import java.time.LocalDate;
@@ -5,7 +6,6 @@ import java.util.List;
 
 public class PublicacionOriginal {
     private int id;
-    private String idOrigen;
     private String fuente;
     private String titulo;
     private String resumen;
@@ -13,7 +13,6 @@ public class PublicacionOriginal {
     private LocalDate fechaPublicacion;
     private List<String> etiquetas;
     private String url;
-    private double confianza;
 
     public int getId() {
         return id;
@@ -21,14 +20,6 @@ public class PublicacionOriginal {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getIdOrigen() {
-        return idOrigen;
-    }
-
-    public void setIdOrigen(String idOrigen) {
-        this.idOrigen = idOrigen;
     }
 
     public String getFuente() {
@@ -85,13 +76,5 @@ public class PublicacionOriginal {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public double getConfianza() {
-        return confianza;
-    }
-
-    public void setConfianza(double confianza) {
-        this.confianza = confianza;
     }
 }

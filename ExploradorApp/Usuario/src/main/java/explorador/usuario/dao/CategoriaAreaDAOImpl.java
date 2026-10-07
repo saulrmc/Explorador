@@ -1,7 +1,7 @@
 package explorador.usuario.dao;
 
 import explorador.data.JsonPersistencia;
-import explorador.usuario.modelo.CategoriaArea;
+import explorador.usuario.modelo.CategoriaAreaEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
     private static final String ARCHIVO = "areas";
     private static final Object BLOQUEO = new Object();
 
-    private static List<CategoriaArea> areas;
+    private static List<CategoriaAreaEnum> areas;
     private static boolean sucio;
 
     private final JsonPersistencia persistencia;
@@ -24,8 +24,15 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
         this.persistencia = persistencia;
     }
 
+    static void reiniciar() {
+        synchronized (BLOQUEO) {
+            areas = null;
+            sucio = false;
+        }
+    }
+
     @Override
-    public List<CategoriaArea> leerTodos() {
+    public List<CategoriaAreaEnum> leerTodos() {
         synchronized (BLOQUEO) {
             cargar();
             return new ArrayList<>(areas);
@@ -33,7 +40,7 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
     }
 
     @Override
-    public boolean agregar(CategoriaArea categoria) {
+    public boolean agregar(CategoriaAreaEnum categoria) {
         synchronized (BLOQUEO) {
             cargar();
             if (areas.contains(categoria)) {
@@ -46,14 +53,14 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
     }
 
     @Override
-    public boolean eliminar(CategoriaArea categoria) {
+    public boolean eliminar(CategoriaAreaEnum categoria) {
         synchronized (BLOQUEO) {
             cargar();
-            boolean eliminado = areas.remove(categoria);
-            if (eliminado) {
+            boolean removed = areas.remove(categoria);
+            if (removed) {
                 sucio = true;
             }
-            return eliminado;
+            return removed;
         }
     }
 
@@ -71,19 +78,7 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
 
     private void cargar() {
         if (areas == null) {
-            List<CategoriaArea> persistidas = persistencia.leerLista(ARCHIVO, CategoriaArea.class);
-            areas = new ArrayList<>();
-            for (CategoriaArea categoria : persistidas) {
-                if (categoria != null && !areas.contains(categoria)) {
-                    areas.add(categoria);
-                }
-            }
-        }
-    }
-
-    static void reiniciar() {
-        synchronized (BLOQUEO) {
-            areas = null;
+            areas = new ArrayList<>(persistencia.leerLista(ARCHIVO, CategoriaAreaEnum.class));
             sucio = false;
         }
     }

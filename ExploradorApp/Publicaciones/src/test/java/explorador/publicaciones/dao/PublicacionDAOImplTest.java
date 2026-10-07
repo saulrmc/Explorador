@@ -1,7 +1,6 @@
 package explorador.publicaciones.dao;
 
 import explorador.data.JsonPersistencia;
-import explorador.fuentes.modelo.PublicacionOriginal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

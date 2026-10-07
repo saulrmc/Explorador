@@ -1,6 +1,5 @@
 package explorador.publicaciones.bo;
 
-import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.dao.PublicacionDAO;
 import explorador.publicaciones.modelo.Publicacion;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

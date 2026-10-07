@@ -1,6 +1,6 @@
 package explorador.usuario.dao;
 
-import explorador.data.JsonPersistencia;
+import explorador.db.JsonPersistencia;
 import explorador.usuario.modelo.PublicacionConsultada;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

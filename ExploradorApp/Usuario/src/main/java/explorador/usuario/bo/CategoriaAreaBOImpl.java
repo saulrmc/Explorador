@@ -2,7 +2,7 @@ package explorador.usuario.bo;
 
 import explorador.usuario.dao.CategoriaAreaDAO;
 import explorador.usuario.dao.CategoriaAreaDAOImpl;
-import explorador.usuario.modelo.CategoriaArea;
+import explorador.usuario.modelo.CategoriaAreaEnum;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,12 +17,12 @@ public class CategoriaAreaBOImpl implements CategoriaAreaBO {
     }
 
     @Override
-    public List<CategoriaArea> listar() {
+    public List<CategoriaAreaEnum> listar() {
         return areaDao.leerTodos();
     }
 
     @Override
-    public void agregar(CategoriaArea categoria) {
+    public void agregar(CategoriaAreaEnum categoria) {
         validarCategoria(categoria);
         if (areaDao.agregar(categoria)) {
             areaDao.guardar();
@@ -30,7 +30,7 @@ public class CategoriaAreaBOImpl implements CategoriaAreaBO {
     }
 
     @Override
-    public void eliminar(CategoriaArea categoria) {
+    public void eliminar(CategoriaAreaEnum categoria) {
         validarCategoria(categoria);
         if (!areaDao.eliminar(categoria)) {
             throw new IllegalStateException("La categoria no esta seleccionada: " + categoria);
@@ -39,11 +39,11 @@ public class CategoriaAreaBOImpl implements CategoriaAreaBO {
     }
 
     @Override
-    public List<CategoriaArea> categorias() {
-        return Arrays.asList(CategoriaArea.values());
+    public List<CategoriaAreaEnum> categorias() {
+        return Arrays.asList(CategoriaAreaEnum.values());
     }
 
-    private void validarCategoria(CategoriaArea categoria) {
+    private void validarCategoria(CategoriaAreaEnum categoria) {
         Objects.requireNonNull(categoria, "La categoria es obligatoria");
     }
 }

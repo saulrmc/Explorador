@@ -6,8 +6,8 @@ import java.util.Set;
 
 public class CheckpointFuente {
     private String nombreFuente;
-    private Set<String> idsVistos;
     private LocalDateTime fechaUltimaConsulta;
+    private Set<String> idsVistos = new HashSet<>();
 
     public String getNombreFuente() {
         return nombreFuente;
@@ -17,22 +17,19 @@ public class CheckpointFuente {
         this.nombreFuente = nombreFuente;
     }
 
-    public Set<String> getIdsVistos() {
-        if (idsVistos == null) {
-            idsVistos = new HashSet<>();
-        }
-        return idsVistos;
-    }
-
-    public void setIdsVistos(Set<String> idsVistos) {
-        this.idsVistos = idsVistos;
-    }
-
     public LocalDateTime getFechaUltimaConsulta() {
         return fechaUltimaConsulta;
     }
 
     public void setFechaUltimaConsulta(LocalDateTime fechaUltimaConsulta) {
         this.fechaUltimaConsulta = fechaUltimaConsulta;
+    }
+
+    public Set<String> getIdsVistos() {
+        return idsVistos;
+    }
+
+    public void setIdsVistos(Set<String> idsVistos) {
+        this.idsVistos = idsVistos;
     }
 }

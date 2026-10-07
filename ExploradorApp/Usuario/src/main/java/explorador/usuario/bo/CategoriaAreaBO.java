@@ -1,15 +1,15 @@
 package explorador.usuario.bo;
 
-import explorador.usuario.modelo.CategoriaArea;
+import explorador.usuario.modelo.CategoriaAreaEnum;
 
 import java.util.List;
 
 public interface CategoriaAreaBO {
-    List<CategoriaArea> listar();
+    List<CategoriaAreaEnum> listar();
 
-    void agregar(CategoriaArea categoria);
+    void agregar(CategoriaAreaEnum categoria);
 
-    void eliminar(CategoriaArea categoria);
+    void eliminar(CategoriaAreaEnum categoria);
 
-    List<CategoriaArea> categorias();
+    List<CategoriaAreaEnum> categorias();
 }

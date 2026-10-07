@@ -1,6 +1,5 @@
 package explorador.publicaciones.bo;
 
-import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.modelo.Publicacion;
 import org.junit.jupiter.api.Test;
 
