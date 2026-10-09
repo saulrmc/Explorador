@@ -82,7 +82,6 @@ public class ArxivAdapter implements FuenteAdapter {
                 String id = idUrl.substring(idUrl.lastIndexOf('/') + 1);
 
                 PublicacionOriginal pub = new PublicacionOriginal();
-                pub.setIdOrigen(id);
                 pub.setFuente(nombre());
                 pub.setTitulo(normalizar(texto(entrada, "title")));
                 pub.setResumen(normalizar(texto(entrada, "summary")));
@@ -90,7 +89,6 @@ public class ArxivAdapter implements FuenteAdapter {
                 pub.setUrl("https://arxiv.org/abs/" + id);
                 pub.setAutores(leerAutores(entrada));
                 pub.setEtiquetas(leerEtiquetas(entrada));
-                pub.setConfianza(0.5);
                 publicaciones.add(pub);
             }
         } catch (Exception e) {

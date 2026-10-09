@@ -36,13 +36,13 @@ public class FuentesBOImpl implements FuentesBO {
 
         List<PublicacionOriginal> nuevas = new ArrayList<>();
         for (PublicacionOriginal pub : recientes) {
-            if (!checkpoint.getIdsVistos().contains(pub.getIdOrigen())) {
+            if (!checkpoint.getIdsVistos().contains(pub.getUrl())) {
                 nuevas.add(pub);
             }
         }
 
         for (PublicacionOriginal pub : nuevas) {
-            checkpoint.getIdsVistos().add(pub.getIdOrigen());
+            checkpoint.getIdsVistos().add(pub.getUrl());
         }
         checkpoint.setFechaUltimaConsulta(LocalDateTime.now());
         checkpointDao.escribir(checkpoint);
