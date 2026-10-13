@@ -2,22 +2,21 @@
 package explorador.publicaciones.dao;
 
 import explorador.fuentes.modelo.PublicacionOriginal;
+import explorador.publicaciones.modelo.Publicacion;
 
 
 import java.util.List;
 
 public interface PublicacionDAO {
-    Integer crear(PublicacionOriginal modelo);
+    Publicacion crear(PublicacionOriginal modelo);
 
-    boolean actualizar(PublicacionOriginal modelo);
+    boolean actualizar(Publicacion modelo);
 
     boolean eliminar(Integer id);
 
-    PublicacionOriginal leer(Integer id);
+    Publicacion leer(Integer id);
 
-    List<PublicacionOriginal> leerTodos();
+    List<Publicacion> leerTodos();
 
-    boolean existePorOrigen(String fuente, String idOrigen);
-
-    void guardar();
+    boolean existePorUrl(String url);
 }

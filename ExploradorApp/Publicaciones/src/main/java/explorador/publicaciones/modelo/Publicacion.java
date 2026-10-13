@@ -3,10 +3,6 @@ package explorador.publicaciones.modelo;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Vista de una publicacion preparada para pantalla. No se almacena:
- * se construye a partir del original crudo cada vez que se lee.
- */
 public class Publicacion {
     private int id;
     private String titulo;
