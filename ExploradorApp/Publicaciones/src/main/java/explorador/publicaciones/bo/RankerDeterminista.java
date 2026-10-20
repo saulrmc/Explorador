@@ -1,6 +1,7 @@
 package explorador.publicaciones.bo;
 
 import explorador.publicaciones.modelo.Publicacion;
+import explorador.publicaciones.modelo.PublicacionRankeada;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -12,10 +13,12 @@ import java.util.Set;
 public class RankerDeterminista implements Ranker {
 
     @Override
-    public List<Publicacion> ordenar(List<Publicacion> publicaciones, Set<String> categorias) {
-        List<Publicacion> ordenadas = new ArrayList<>(publicaciones);
-        for (Publicacion publicacion : ordenadas) {
-            publicacion.setScore(calcular(publicacion, categorias));
+    public List<PublicacionRankeada> ordenar(List<Publicacion> publicaciones, Set<String> categorias) {
+        List<PublicacionRankeada> ordenadas = new ArrayList<>();
+        for (Publicacion publicacion : publicaciones) {
+            PublicacionRankeada rankeada = new PublicacionRankeada(publicacion);
+            rankeada.setScore(calcular(publicacion, categorias));
+            ordenadas.add(rankeada);
         }
         ordenadas.sort((a, b) -> Double.compare(b.getScore(), a.getScore()));
         return ordenadas;
@@ -28,11 +31,11 @@ public class RankerDeterminista implements Ranker {
     }
 
     private LocalDate fechaPublicacion(Publicacion publicacion) {
-        return publicacion.getOriginal() == null ? null : publicacion.getOriginal().getFechaPublicacion();
+        return publicacion == null ? null : publicacion.getFechaPublicacion();
     }
 
     private double confianza(Publicacion publicacion) {
-        return publicacion.getOriginal() == null ? 0.0 : publicacion.getOriginal().getConfianza();
+        return publicacion == null ? 0.0 : publicacion.getConfianza();
     }
 
     private double recencia(LocalDate fechaPublicacion) {
@@ -56,10 +59,7 @@ public class RankerDeterminista implements Ranker {
     }
 
     private Set<String> etiquetas(Publicacion publicacion) {
-        if (publicacion.getOriginal() == null) {
-            return Set.of();
-        }
-        List<String> etiquetas = publicacion.getOriginal().getEtiquetas();
+        List<String> etiquetas = publicacion.getEtiquetas();
         return etiquetas == null ? Set.of() : new HashSet<>(etiquetas);
     }
 }

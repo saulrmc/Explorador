@@ -7,6 +7,7 @@ import explorador.fuentes.modelo.PublicacionOriginal;
 import explorador.publicaciones.dao.PublicacionDAO;
 import explorador.publicaciones.dao.PublicacionDAOImpl;
 import explorador.publicaciones.modelo.Publicacion;
+import explorador.publicaciones.modelo.PublicacionRankeada;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -49,12 +50,12 @@ public class PublicacionesBOImpl implements PublicacionesBO {
     }
 
     @Override
-    public List<Publicacion> listarLimitadas(Set<String> categorias, int limite) {
+    public List<PublicacionRankeada> listarLimitadas(Set<String> categorias, int limite) {
         return ranker.ordenar(listar(), categorias).stream().limit(limite).toList();
     }
 
     @Override
-    public List<Publicacion> rankear(List<Publicacion> publicaciones, Set<String> categorias) {
+    public List<PublicacionRankeada> rankear(List<Publicacion> publicaciones, Set<String> categorias) {
         return ranker.ordenar(publicaciones, categorias);
     }
 
