@@ -27,7 +27,7 @@ public class RankerDeterminista implements Ranker {
     private double calcular(Publicacion publicacion, Set<String> categorias) {
         double recencia = recencia(fechaPublicacion(publicacion));
         double coincidencia = coincidencia(publicacion, categorias);
-        return 0.5 * recencia + 0.4 * coincidencia;
+        return 0.6 * recencia + 0.4 * coincidencia;
     }
 
     private LocalDate fechaPublicacion(Publicacion publicacion) {

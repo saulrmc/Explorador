@@ -1,85 +1,124 @@
 package explorador.usuario.dao;
 
-import explorador.data.JsonPersistencia;
+import explorador.db.SQLiteDBManager;
+import explorador.usuario.modelo.Categoria;
 import explorador.usuario.modelo.CategoriaAreaEnum;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
 
-    private static final String ARCHIVO = "areas";
-    private static final Object BLOQUEO = new Object();
-
-    private static List<CategoriaAreaEnum> areas;
-    private static boolean sucio;
-
-    private final JsonPersistencia persistencia;
-
     public CategoriaAreaDAOImpl() {
-        this(new JsonPersistencia("Usuario"));
+        crearTabla();
     }
 
-    CategoriaAreaDAOImpl(JsonPersistencia persistencia) {
-        this.persistencia = persistencia;
-    }
-
-    static void reiniciar() {
-        synchronized (BLOQUEO) {
-            areas = null;
-            sucio = false;
+    private void crearTabla() {
+        String sql = """
+                CREATE TABLE IF NOT EXISTS categoria (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre TEXT NOT NULL UNIQUE,
+                    principal INTEGER NOT NULL DEFAULT 0
+                )
+                """;
+        try (Connection conn = SQLiteDBManager.getInstance().getConnection();
+             Statement st = conn.createStatement()) {
+            st.execute(sql);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException("Error al crear la tabla categoria", e);
         }
     }
 
     @Override
     public List<CategoriaAreaEnum> leerTodos() {
-        synchronized (BLOQUEO) {
-            cargar();
-            return new ArrayList<>(areas);
+        String sql = "SELECT nombre FROM categoria ORDER BY id";
+        List<CategoriaAreaEnum> categorias = new ArrayList<>();
+        try (Connection conn = SQLiteDBManager.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                categorias.add(CategoriaAreaEnum.valueOf(rs.getString("nombre")));
+            }
+            return categorias;
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException("Error al leer categorias", e);
         }
     }
 
     @Override
-    public boolean agregar(CategoriaAreaEnum categoria) {
-        synchronized (BLOQUEO) {
-            cargar();
-            if (areas.contains(categoria)) {
-                return false;
+    public Categoria obtenerPrincipal() {
+        String sql = "SELECT id, nombre, principal FROM categoria WHERE principal = 1 LIMIT 1";
+        try (Connection conn = SQLiteDBManager.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                Categoria categoria = new Categoria();
+                categoria.setId(rs.getInt("id"));
+                categoria.setNombre(CategoriaAreaEnum.valueOf(rs.getString("nombre")));
+                categoria.setPrincipal(rs.getInt("principal") == 1);
+                return categoria;
             }
-            areas.add(categoria);
-            sucio = true;
-            return true;
+            return null;
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException("Error al obtener categoria principal", e);
+        }
+    }
+
+    @Override
+    public boolean agregar(CategoriaAreaEnum nombre) {
+        String sql = "INSERT OR IGNORE INTO categoria(nombre, principal) VALUES(?, 0)";
+        try (Connection conn = SQLiteDBManager.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, nombre.name());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException("Error al agregar categoria", e);
+        }
+    }
+
+    @Override
+    public boolean marcarPrincipal(int id) {
+        String sqlQuitar = "UPDATE categoria SET principal = 0";
+        String sqlMarcar = "UPDATE categoria SET principal = 1 WHERE id = ?";
+        try (Connection conn = SQLiteDBManager.getInstance().getConnection()) {
+            conn.setAutoCommit(false);
+            try (Statement st = conn.createStatement();
+                 PreparedStatement ps = conn.prepareStatement(sqlMarcar)) {
+                st.executeUpdate(sqlQuitar);
+                ps.setInt(1, id);
+                boolean ok = ps.executeUpdate() > 0;
+                conn.commit();
+                return ok;
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException("Error al marcar categoria principal", e);
         }
     }
 
     @Override
     public boolean eliminar(CategoriaAreaEnum categoria) {
-        synchronized (BLOQUEO) {
-            cargar();
-            boolean removed = areas.remove(categoria);
-            if (removed) {
-                sucio = true;
-            }
-            return removed;
+        String sql = "DELETE FROM categoria WHERE nombre = ?";
+        try (Connection conn = SQLiteDBManager.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, categoria.name());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException("Error al eliminar categoria", e);
         }
     }
 
     @Override
     public void guardar() {
-        synchronized (BLOQUEO) {
-            cargar();
-            if (!sucio) {
-                return;
-            }
-            persistencia.escribir(ARCHIVO, areas);
-            sucio = false;
-        }
-    }
-
-    private void cargar() {
-        if (areas == null) {
-            areas = new ArrayList<>(persistencia.leerLista(ARCHIVO, CategoriaAreaEnum.class));
-            sucio = false;
-        }
+        // No necesario con SQLite: las operaciones se guardan de inmediato
     }
 }
