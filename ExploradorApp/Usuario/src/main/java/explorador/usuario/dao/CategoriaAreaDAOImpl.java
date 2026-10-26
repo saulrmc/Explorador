@@ -83,6 +83,7 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
 
     @Override
     public boolean marcarPrincipal(int id) {
+        //solo puede haber una principal
         String sqlQuitar = "UPDATE categoria SET principal = 0";
         String sqlMarcar = "UPDATE categoria SET principal = 1 WHERE id = ?";
         try (Connection conn = SQLiteDBManager.getInstance().getConnection()) {
@@ -92,8 +93,12 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
                 st.executeUpdate(sqlQuitar);
                 ps.setInt(1, id);
                 boolean ok = ps.executeUpdate() > 0;
+                if (!ok) {
+                    conn.rollback();
+                    return false;
+                }
                 conn.commit();
-                return ok;
+                return true;
             } catch (SQLException ex) {
                 conn.rollback();
                 throw ex;
@@ -117,8 +122,4 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
         }
     }
 
-    @Override
-    public void guardar() {
-        // No necesario con SQLite: las operaciones se guardan de inmediato
-    }
 }
