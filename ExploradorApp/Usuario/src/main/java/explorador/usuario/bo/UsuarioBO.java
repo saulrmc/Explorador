@@ -5,5 +5,5 @@ import explorador.usuario.modelo.Usuario;
 public interface UsuarioBO {
     Usuario obtener();
 
-    void actualizar(String nombre, String correo);
+    boolean actualizar(String nombre, String correo);
 }

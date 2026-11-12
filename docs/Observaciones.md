@@ -22,3 +22,6 @@ Además, me he quitado de encima la poda a los 7 días: ningún requisito la pid
   1. Cómo se disparará la sincronización diaria de ArXiv. La solución anterior sincronizaba al arrancar, eso es una opción, pero quiero pensarlo con calma en un ADR.
   2. La categorización: el enum con los códigos de ArXiv está hardcodeado.
   3. Estaba pensando en conservar el módulo de correos, pero no es una funcionalidad principal, así que lo decido cuando toque.
+
+## 12-11-26
+- **Observación:** Las categorías están acopladas a arXiv de manera intencional solo porque no sabía cómo resolver el problema de tener categorías similares de fuentes distintas pero con nombres distintos (arXiv, por ejemplo, divide *Electrical Engineering and Systems Science* en subcategorías, mientras que ScienceDirect maneja *Engineering* como un área más general). Eso me llevó a pensar en separar las categorías genéricas de las categorías propias de cada fuente, unidas por un mapeo; así podría escoger intereses y también qué fuentes consultar sin que el dominio dependa de la taxonomía de una sola.

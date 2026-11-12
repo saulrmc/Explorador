@@ -9,25 +9,39 @@ import java.util.Objects;
 public class UsuarioBOImpl implements UsuarioBO {
 
     private final UsuarioDAO usuarioDao;
+    private final CategoriaGenericaBO categoriaBO;
 
     public UsuarioBOImpl() {
-        this.usuarioDao = new UsuarioDAOImpl();
+        this(new UsuarioDAOImpl(), new CategoriaGenericaBOImpl());
+    }
+
+    public UsuarioBOImpl(UsuarioDAO usuarioDAO) {
+        this(usuarioDAO, new CategoriaGenericaBOImpl());
+    }
+
+    public UsuarioBOImpl(UsuarioDAO usuarioDao, CategoriaGenericaBO categoriaBO) {
+        this.usuarioDao = usuarioDao;
+        this.categoriaBO = categoriaBO;
     }
 
     @Override
     public Usuario obtener() {
-        return usuarioDao.leer();
+        Usuario usuario = usuarioDao.leer();
+        if (usuario != null) {
+            usuario.setIntereses(categoriaBO.listar());
+        }
+        return usuario;
     }
 
     @Override
-    public void actualizar(String nombre, String correo) {
+    public boolean actualizar(String nombre, String correo) {
         Objects.requireNonNull(nombre, "El nombre es obligatorio");
-        if (nombre.isBlank()) {
-            throw new IllegalArgumentException("El nombre no puede estar vacio");
-        }
         Objects.requireNonNull(correo, "El correo es obligatorio");
-        if (correo.isBlank()) {
-            throw new IllegalArgumentException("El correo no puede estar vacio");
+
+        String nombreLimpio = nombre.trim();
+        String correoLimpio = correo.trim();
+        if (nombreLimpio.isEmpty() || correoLimpio.isEmpty()) {
+            return false;
         }
 
         Usuario usuario = usuarioDao.leer();
@@ -35,8 +49,9 @@ public class UsuarioBOImpl implements UsuarioBO {
             usuario = new Usuario();
             usuario.setId(1);
         }
-        usuario.setNombre(nombre);
-        usuario.setCorreo(correo);
+        usuario.setNombre(nombreLimpio);
+        usuario.setCorreo(correoLimpio);
         usuarioDao.escribir(usuario);
+        return true;
     }
 }

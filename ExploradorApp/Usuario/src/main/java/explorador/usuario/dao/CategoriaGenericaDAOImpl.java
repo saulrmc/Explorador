@@ -2,7 +2,7 @@ package explorador.usuario.dao;
 
 import explorador.db.SQLiteDBManager;
 import explorador.usuario.modelo.Categoria;
-import explorador.usuario.modelo.CategoriaAreaEnum;
+import explorador.usuario.modelo.CategoriaGenerica;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,9 +12,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
+public class CategoriaGenericaDAOImpl implements CategoriaGenericaDAO {
 
-    public CategoriaAreaDAOImpl() {
+    public CategoriaGenericaDAOImpl() {
         crearTabla();
     }
 
@@ -35,14 +35,14 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
     }
 
     @Override
-    public List<CategoriaAreaEnum> leerTodos() {
-        String sql = "SELECT nombre FROM categoria ORDER BY id";
-        List<CategoriaAreaEnum> categorias = new ArrayList<>();
+    public List<Categoria> leerTodos() {
+        String sql = "SELECT id, nombre, principal FROM categoria ORDER BY id";
+        List<Categoria> categorias = new ArrayList<>();
         try (Connection conn = SQLiteDBManager.getInstance().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                categorias.add(CategoriaAreaEnum.valueOf(rs.getString("nombre")));
+                categorias.add(mapear(rs));
             }
             return categorias;
         } catch (SQLException | ClassNotFoundException e) {
@@ -57,11 +57,7 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                Categoria categoria = new Categoria();
-                categoria.setId(rs.getInt("id"));
-                categoria.setNombre(CategoriaAreaEnum.valueOf(rs.getString("nombre")));
-                categoria.setPrincipal(rs.getInt("principal") == 1);
-                return categoria;
+                return mapear(rs);
             }
             return null;
         } catch (SQLException | ClassNotFoundException e) {
@@ -70,7 +66,7 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
     }
 
     @Override
-    public boolean agregar(CategoriaAreaEnum nombre) {
+    public boolean agregar(CategoriaGenerica nombre) {
         String sql = "INSERT OR IGNORE INTO categoria(nombre, principal) VALUES(?, 0)";
         try (Connection conn = SQLiteDBManager.getInstance().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -111,15 +107,22 @@ public class CategoriaAreaDAOImpl implements CategoriaAreaDAO {
     }
 
     @Override
-    public boolean eliminar(CategoriaAreaEnum categoria) {
+    public boolean eliminar(String categoria) {
         String sql = "DELETE FROM categoria WHERE nombre = ?";
         try (Connection conn = SQLiteDBManager.getInstance().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, categoria.name());
+            ps.setString(1, categoria);
             return ps.executeUpdate() > 0;
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error al eliminar categoria", e);
         }
     }
 
+    private Categoria mapear(ResultSet rs) throws SQLException {
+        Categoria categoria = new Categoria();
+        categoria.setId(rs.getInt("id"));
+        categoria.setNombre(CategoriaGenerica.valueOf(rs.getString("nombre")));
+        categoria.setPrincipal(rs.getInt("principal") == 1);
+        return categoria;
+    }
 }
