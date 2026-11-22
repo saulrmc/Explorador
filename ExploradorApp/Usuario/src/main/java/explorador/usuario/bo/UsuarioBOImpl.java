@@ -2,9 +2,13 @@ package explorador.usuario.bo;
 
 import explorador.usuario.dao.UsuarioDAO;
 import explorador.usuario.dao.UsuarioDAOImpl;
+import explorador.usuario.modelo.Categoria;
+import explorador.usuario.modelo.CategoriaGenerica;
 import explorador.usuario.modelo.Usuario;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class UsuarioBOImpl implements UsuarioBO {
 
@@ -24,15 +28,21 @@ public class UsuarioBOImpl implements UsuarioBO {
         this.categoriaBO = categoriaBO;
     }
 
+    // Devuelve las categorias genericas del usuario; si no hay usuario aun, usa id 1 como base
     @Override
-    public Usuario obtener() {
+    public List<CategoriaGenerica> listarIntereses() {
         Usuario usuario = usuarioDao.leer();
-        if (usuario != null) {
-            usuario.setIntereses(categoriaBO.listar());
+        if (usuario == null) {
+            usuario = new Usuario();
+            usuario.setId(1);
         }
-        return usuario;
+        List<Categoria> seleccion = categoriaBO.listar();
+        return seleccion.stream()
+                .map(Categoria::getNombre)
+                .collect(Collectors.toList());
     }
 
+    // Actualiza nombre y correo del usuario (id 1). Si vienen vacios o nulos, no hace nada
     @Override
     public boolean actualizar(String nombre, String correo) {
         Objects.requireNonNull(nombre, "El nombre es obligatorio");
