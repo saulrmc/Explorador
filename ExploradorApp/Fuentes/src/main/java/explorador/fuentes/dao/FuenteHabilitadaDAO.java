@@ -1,6 +1,6 @@
-package explorador.usuario.dao;
+package explorador.fuentes.dao;
 
-import explorador.usuario.modelo.FuenteHabilitada;
+import explorador.fuentes.modelo.FuenteHabilitada;
 
 import java.util.List;
 

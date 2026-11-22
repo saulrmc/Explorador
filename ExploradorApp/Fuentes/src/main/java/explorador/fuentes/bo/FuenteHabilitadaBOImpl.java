@@ -1,8 +1,8 @@
-package explorador.usuario.bo;
+package explorador.fuentes.bo;
 
-import explorador.usuario.dao.FuenteHabilitadaDAO;
-import explorador.usuario.dao.FuenteHabilitadaDAOImpl;
-import explorador.usuario.modelo.FuenteHabilitada;
+import explorador.fuentes.dao.FuenteHabilitadaDAO;
+import explorador.fuentes.dao.FuenteHabilitadaDAOImpl;
+import explorador.fuentes.modelo.FuenteHabilitada;
 
 import java.util.List;
 
@@ -21,11 +21,6 @@ public class FuenteHabilitadaBOImpl implements FuenteHabilitadaBO {
     @Override
     public List<FuenteHabilitada> listarTodas() {
         return dao.listarTodas();
-    }
-
-    @Override
-    public List<String> listarHabilitadas() {
-        return dao.listarHabilitadas();
     }
 
     @Override

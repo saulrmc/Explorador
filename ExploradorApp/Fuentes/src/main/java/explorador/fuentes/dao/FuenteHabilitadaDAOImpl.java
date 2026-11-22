@@ -1,7 +1,7 @@
-package explorador.usuario.dao;
+package explorador.fuentes.dao;
 
 import explorador.db.SQLiteDBManager;
-import explorador.usuario.modelo.FuenteHabilitada;
+import explorador.fuentes.modelo.FuenteHabilitada;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

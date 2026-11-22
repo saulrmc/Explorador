@@ -1,4 +1,4 @@
-package explorador.usuario.modelo;
+package explorador.fuentes.modelo;
 
 public class FuenteHabilitada {
     private String nombre;
