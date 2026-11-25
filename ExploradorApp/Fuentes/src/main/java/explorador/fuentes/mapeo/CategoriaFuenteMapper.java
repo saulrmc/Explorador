@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class CategoriaFuenteMapper {
 
-    // mapeo manual: nombreFuente -> (categoriaGenerica -> codigos externos)
+
     private static final Map<String, Map<CategoriaGenerica, List<String>>> MAPEO = Map.of(
             "arxiv", Map.ofEntries(
                     Map.entry(CategoriaGenerica.COMPUTACION, List.of("cs.AI", "cs.LG", "cs.CL", "cs.CV", "cs.SE", "cs.PL")),
@@ -28,8 +28,9 @@ public class CategoriaFuenteMapper {
     private CategoriaFuenteMapper() {
     }
 
-    // Devuelve codigos externos de una fuente para las categorias genericas dadas (union).
-    // Si no hay mapeo para alguna pareja, se ignora. Si faltan datos, devuelve conjunto vacio.
+    // Une codigos externos para la fuente indicada, usando las categorias genericas dadas.
+    // Si una pareja (generica, fuente) no tiene mapeo, se ignora.
+    // Si genericas es null/vacio, nombreFuente es null/vacio o la fuente no existe, devuelve conjunto vacio.
     public static Set<String> mapear(Collection<CategoriaGenerica> genericas, String nombreFuente) {
         if (genericas == null || genericas.isEmpty() || nombreFuente == null || nombreFuente.isBlank()) {
             return Set.of();
